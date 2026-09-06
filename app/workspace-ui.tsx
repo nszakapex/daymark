@@ -1,5 +1,5 @@
 'use client';
-import Link from 'next/link';
+import Link from '@/components/site-link';
 import { useEffect, useState } from 'react';
 import {
   ArrowUpRight,
@@ -262,7 +262,7 @@ export default function Workspace() {
                   aria-label="Reporting period"
                 >
                   <Clock3 size={15} />
-                  <SelectValue />
+                  <SelectValue>{report.label}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="current">Aug 7 – Sep 3, 2026</SelectItem>

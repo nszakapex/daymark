@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/site-link';
 import { ArrowUpRight, Check, CircleDashed } from 'lucide-react';
 import { Brand } from '../landing';
 import { chatGPTSignOutPath, requireChatGPTUser } from '../chatgpt-auth';

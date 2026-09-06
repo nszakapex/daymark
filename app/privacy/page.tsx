@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/site-link';
 import { ArrowLeft } from 'lucide-react';
 import { Brand } from '../landing';
 export default function PrivacyPage() {

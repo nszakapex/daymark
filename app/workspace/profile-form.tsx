@@ -1,5 +1,5 @@
 'use client';
-import Link from 'next/link';
+import Link from '@/components/site-link';
 import { useState } from 'react';
 import {
   ArrowRight,
@@ -160,7 +160,9 @@ export default function ProfileForm({
             id="goal"
             aria-labelledby="goal-label"
           >
-            <SelectValue />
+            <SelectValue>
+              {goalOptions.find((option) => option.value === goal)?.label}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {goalOptions.map((g) => (

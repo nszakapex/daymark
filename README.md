@@ -21,6 +21,8 @@ All June Paper Co. metrics and recommendations are fictional. Reviewing a demo d
 
 ## Local development
 
+Page navigation uses `components/site-link.tsx`, a native anchor. Vinext 1.0.0-beta.5's production Link bundle was observed throwing `TypeError: e is not a function` after intercepting the click, while direct page loads and demo controls worked. Keep native navigation until a framework update is verified in the hosted browser. This deliberately trades client route transitions for reliable page entry.
+
 Use the locked package versions. Run `pnpm install`, `pnpm dev`, and use the platform's local sign-in. Generate schema changes with `pnpm db:generate`. The D1 binding is configured in `.openai/hosting.json`; generated migrations are deployed with the site. Local migrations can be applied with Wrangler after a build using its generated server config and the same `.wrangler/state` persistence directory.
 
 Validation: `pnpm lint`, `pnpm exec tsc --noEmit`, `pnpm build`. With the local server and migration applied, `node tests/api-smoke.mjs` exercises synthetic account persistence and authentication/error boundaries. It refuses to overwrite an existing local profile and removes its fixture.
