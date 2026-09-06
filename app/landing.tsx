@@ -1,4 +1,5 @@
 import Link from '@/components/site-link';
+import Platform from '@/components/platform-logo';
 import {
   ArrowUpRight,
   ArrowRight,
@@ -40,22 +41,23 @@ export default function Landing() {
               <span className="status-dot" /> A clearer view of your marketing
             </span>
             <h1>
-              More understanding.
+              Know your next move.
               <br />
-              <span>Less wondering.</span>
+              <span>Before you spend more.</span>
             </h1>
             <p>
-              Your marketing tells a story. Daymark brings the numbers together,
-              finds what matters, and helps you make your next move.
+              Bring your marketing numbers together. Spot the change worth your
+              attention. Get a next step you can actually use.
             </p>
             <div className="hero-actions">
               <Link href="/demo" className="button-primary">
-                Step inside the demo <ArrowUpRight size={19} />
+                Try Daymark <ArrowUpRight size={19} />
               </Link>
               <span>Sample data. Zero setup.</span>
             </div>
             <div className="hero-footnote">
-              <Check size={15} /> A minute to understand. A reason to act.
+              <Check size={15} /> Explore a real product experience with sample
+              data.
             </div>
           </div>
           <div className="hero-product">
@@ -68,9 +70,9 @@ export default function Landing() {
             <div className="preview-inner">
               <span className="eyebrow">Your marketing, understood</span>
               <h2>
-                The next move
+                One change.
                 <br />
-                is getting clearer.
+                Your next move.
               </h2>
               <div className="preview-stats">
                 <div>
@@ -121,14 +123,19 @@ export default function Landing() {
         </section>
         <div className="ecosystem-strip">
           <span>Built around the tools you already use</span>
-          <div>
-            <b>∞ Meta</b>
-            <b>
-              <span className="google-g">G</span> Google Ads
-            </b>
-            <b>Analytics</b>
-            <b>Shopify</b>
-            <b>stripe</b>
+          <div className="ecosystem-logos">
+            {[
+              { name: 'Meta', label: 'Meta' },
+              { name: 'Google', label: 'Google Ads' },
+              { name: 'Analytics', label: 'Analytics' },
+              { name: 'Shopify', label: 'Shopify' },
+              { name: 'Stripe', label: 'Stripe' },
+            ].map((platform) => (
+              <span key={platform.name}>
+                <Platform name={platform.name} />
+                <b>{platform.label}</b>
+              </span>
+            ))}
           </div>
           <small>Planned connections · this preview uses sample data</small>
         </div>
@@ -136,9 +143,9 @@ export default function Landing() {
           <div>
             <span className="eyebrow">A little clarity goes a long way</span>
             <h2>
-              From scattered numbers
+              The right information.
               <br />
-              to a considered next step.
+              Right when you need to decide.
             </h2>
           </div>
           <div className="steps">
@@ -184,7 +191,7 @@ export default function Landing() {
       </main>
       <footer className="site-footer">
         <Brand />
-        <span>Know what matters. Make your next move.</span>
+        <span>Clear numbers. Your decision.</span>
         <Link href="/login">
           Your workspace <ArrowUpRight size={15} />
         </Link>

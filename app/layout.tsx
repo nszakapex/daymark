@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import './daymark.css';
+import './product-polish.css';
+import './product-responsive.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -14,7 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Daymark — Your marketing, understood',
+  title: 'Daymark — Know your next move',
+  icons: { icon: '/favicon.svg' },
   description:
     'Understand your marketing, see the evidence, and find your next useful action. Explore the Daymark product preview.',
 };

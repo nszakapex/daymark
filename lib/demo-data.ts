@@ -39,7 +39,7 @@ export function reportFor(period: Period) {
 export const demoFinding = {
   title: 'Review Meta before increasing its budget.',
   finding:
-    'Paid customer acquisition cost increased 25%, while spending stayed the same.',
+    'Cost per matched new customer increased 25%, while spending stayed the same.',
   basis:
     'Meta matched customers fell from 24 to 12; Google remained at 36. Current Meta cost is $80 per matched new customer, above the sample owner’s $60 target.',
   limits:

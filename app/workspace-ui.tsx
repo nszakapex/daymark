@@ -32,6 +32,7 @@ import {
   SidebarMenuButton,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   Sheet,
@@ -56,13 +57,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Brand } from './landing';
+import Platform from '@/components/platform-logo';
 import { reportFor, demoFinding, type Period } from '@/lib/demo-data';
 
 const sections = [
-  { id: 'overview', label: 'Your brief', icon: LayoutDashboard },
-  { id: 'channels', label: 'Channels', icon: ChartNoAxesCombined },
-  { id: 'decisions', label: 'Decisions', icon: CheckCheck },
-  { id: 'connections', label: 'Connections', icon: Plug },
+  { id: 'overview', label: 'Next move', icon: LayoutDashboard },
+  { id: 'channels', label: 'Compare channels', icon: ChartNoAxesCombined },
+  { id: 'decisions', label: 'Your reviews', icon: CheckCheck },
+  { id: 'connections', label: 'Your tools', icon: Plug },
 ] as const;
 type Section = (typeof sections)[number]['id'];
 type Context = {
@@ -77,19 +79,6 @@ type Context = {
     options?: { signal: AbortSignal },
   ) => void | Promise<void>;
 };
-function Platform({ name }: { name: string }) {
-  return (
-    <span className={'platform-icon ' + name.toLowerCase()}>
-      {name === 'Meta'
-        ? '∞'
-        : name === 'Google'
-          ? 'G'
-          : name === 'Sales'
-            ? 'J'
-            : name.charAt(0)}
-    </span>
-  );
-}
 function MiniBars({ values }: { values: readonly number[] }) {
   return (
     <div className="mini-bars" aria-hidden="true">
@@ -97,6 +86,21 @@ function MiniBars({ values }: { values: readonly number[] }) {
         <i key={i} style={{ height: Math.max(v * 2, 8) }} />
       ))}
     </div>
+  );
+}
+
+function WorkspaceMenuButton(
+  props: React.ComponentProps<typeof SidebarMenuButton>,
+) {
+  const { setOpenMobile } = useSidebar();
+  return (
+    <SidebarMenuButton
+      {...props}
+      onClick={(event) => {
+        props.onClick?.(event);
+        setOpenMobile(false);
+      }}
+    />
   );
 }
 
@@ -152,9 +156,9 @@ export default function Workspace() {
   return (
     <SidebarProvider
       className="workspace"
-      style={{ '--sidebar-width': '238px' } as React.CSSProperties}
+      style={{ '--sidebar-width': '254px' } as React.CSSProperties}
     >
-      <Sidebar className="daymark-sidebar">
+      <Sidebar className="daymark-sidebar" variant="floating">
         <SidebarHeader className="app-brand">
           <Brand />
         </SidebarHeader>
@@ -171,7 +175,7 @@ export default function Workspace() {
           <SidebarMenu className="app-menu">
             {sections.map((item) => (
               <SidebarMenuItem key={item.id}>
-                <SidebarMenuButton
+                <WorkspaceMenuButton
                   className="app-nav-item"
                   isActive={section === item.id}
                   onClick={() => setSection(item.id)}
@@ -180,22 +184,22 @@ export default function Workspace() {
                   <item.icon size={18} />
                   <span>{item.label}</span>
                   {item.id === 'overview' && (
-                    <span className="nav-count">1</span>
+                    <span className="nav-count">{reviewed ? '✓' : '1'}</span>
                   )}
-                </SidebarMenuButton>
+                </WorkspaceMenuButton>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
           <div className="sidebar-note">
             <div>
-              <span className="status-dot" /> A little clarity, every week.
+              <span className="status-dot" /> One review. A clearer next step.
             </div>
-            <p>The useful part of your marketing data, brought into focus.</p>
+            <p>Keep the numbers, the evidence, and your decision together.</p>
           </div>
         </SidebarContent>
         <SidebarFooter className="app-sidebar-footer">
           <button onClick={() => setPanel('help')}>
-            <CircleHelp size={17} /> How to read your brief
+            <CircleHelp size={17} /> How Daymark works
           </button>
           <Link href="/login" className="profile-link">
             <span className="profile-avatar">D</span>
@@ -227,26 +231,24 @@ export default function Workspace() {
         <main className="app-main">
           <div className="brief-heading">
             <div>
-              <span className="eyebrow">
-                June Paper Co. / Marketing intelligence
-              </span>
+              <span className="eyebrow">June Paper Co. / Marketing review</span>
               <h1>
                 {section === 'overview'
-                  ? 'Your marketing, understood.'
+                  ? 'Your next move.'
                   : section === 'channels'
-                    ? 'The story behind each channel.'
+                    ? 'Compare your channels.'
                     : section === 'decisions'
-                      ? 'Good decisions deserve a memory.'
-                      : 'Everything in its place.'}
+                      ? 'What you’ve reviewed.'
+                      : 'Your tools. Working together.'}
               </h1>
               <p>
                 {section === 'overview'
-                  ? 'The important changes. The evidence. Your next move.'
+                  ? 'See what changed. Decide what happens next.'
                   : section === 'channels'
-                    ? 'Comparable periods, consistent definitions, a clearer picture.'
+                    ? 'See where your spend goes and which results deserve a closer look.'
                     : section === 'decisions'
-                      ? 'Keep the context behind the choices you make.'
-                      : 'A clear view of what contributes to your brief.'}
+                      ? 'Your decisions, with the numbers that informed them.'
+                      : 'Keep your workflow. Bring the important numbers into one place.'}
               </p>
             </div>
             {(section === 'overview' || section === 'channels') && (
@@ -272,75 +274,51 @@ export default function Workspace() {
             )}
           </div>
           {(section === 'overview' || section === 'channels') && (
+            <div className="signal-bubbles" aria-label="Report shortcuts">
+              <button
+                className="signal-bubble"
+                onClick={() => setPanel('evidence')}
+              >
+                <Platform name="Meta" />
+                <span>
+                  Meta{' '}
+                  <strong>
+                    {period === 'current' ? 'Needs a look' : 'Within target'}
+                  </strong>
+                </span>
+                <span
+                  className={
+                    period === 'current'
+                      ? 'bubble-dot amber'
+                      : 'bubble-dot mint'
+                  }
+                />
+              </button>
+              <button
+                className="signal-bubble"
+                onClick={() => setSection('channels')}
+              >
+                <Platform name="Google" />
+                <span>
+                  Google Ads <strong>Within target</strong>
+                </span>
+                <span className="bubble-dot mint" />
+              </button>
+              <button
+                className="signal-bubble coverage-bubble"
+                onClick={() => setPanel('coverage')}
+              >
+                <ShieldCheck size={19} />
+                <span>
+                  <strong>{report.unknownCustomers} unknown sources</strong>
+                  Worth checking
+                </span>
+                <ArrowUpRight size={16} />
+              </button>
+            </div>
+          )}
+          {(section === 'overview' || section === 'channels') && (
             <>
-              <div className="metrics-grid">
-                <article className="metric-card">
-                  <span>
-                    Total advertising spend{' '}
-                    <span className="metric-number">01</span>
-                  </span>
-                  <div>
-                    <strong>$2,400</strong>
-                    <MiniBars values={[8, 10, 10, 12, 10, 11, 10, 12]} />
-                  </div>
-                  <p>
-                    <span className="neutral-pill">— Same spend</span>
-                    <span>across both periods</span>
-                  </p>
-                </article>
-                <article className="metric-card">
-                  <span>
-                    Matched new paid customers{' '}
-                    <span className="metric-number">02</span>
-                  </span>
-                  <div>
-                    <strong>{report.paidCustomers}</strong>
-                    <MiniBars
-                      values={
-                        period === 'current'
-                          ? [15, 14, 13, 12, 11, 10, 10, 9]
-                          : [12, 13, 14, 15, 14, 15, 16, 15]
-                      }
-                    />
-                  </div>
-                  <p>
-                    {period === 'current' ? (
-                      <>
-                        <span className="change-pill">↘ 20%</span>
-                        <span>60 in the previous period</span>
-                      </>
-                    ) : (
-                      <span>60 customers with a paid source match</span>
-                    )}
-                  </p>
-                </article>
-                <article className="metric-card">
-                  <span>
-                    Cost per matched customer{' '}
-                    <span className="metric-number">03</span>
-                  </span>
-                  <div>
-                    <strong>${report.cost}</strong>
-                    <MiniBars
-                      values={
-                        period === 'current'
-                          ? [8, 10, 9, 12, 12, 14, 16, 18]
-                          : [10, 10, 10, 10, 10, 10, 10, 10]
-                      }
-                    />
-                  </div>
-                  <p>
-                    {period === 'current' ? (
-                      <>
-                        <span className="change-pill">↗ 25%</span>
-                        <span>$40 in the previous period</span>
-                      </>
-                    ) : (
-                      <span>Advertising spend ÷ matched customers</span>
-                    )}
-                  </p>
-                </article>
-              </div>
               {section === 'overview' && (
                 <div
                   className={
@@ -354,12 +332,14 @@ export default function Workspace() {
                     </span>
                     <span className="eyebrow">
                       {period === 'current'
-                        ? 'One thing worth your attention'
+                        ? 'Your priority'
                         : 'Your previous baseline'}
                     </span>
                     <span className="attention-pill">
                       {period === 'current'
-                        ? 'Worth a review'
+                        ? reviewed
+                          ? 'Reviewed'
+                          : '1 to review'
                         : 'Within target'}
                     </span>
                   </div>
@@ -370,7 +350,7 @@ export default function Workspace() {
                           <>
                             Same spend.
                             <br />
-                            Fewer new customers.
+                            Fewer matched customers.
                           </>
                         ) : (
                           <>
@@ -382,19 +362,27 @@ export default function Workspace() {
                       </h2>
                       <p>
                         {period === 'current'
-                          ? 'Acquiring a new paying customer cost 25% more this period. The change is concentrated in Meta; Google held steady.'
+                          ? 'Cost per matched new customer rose 25%. The change is concentrated in Meta; Google held steady.'
                           : 'Both paid channels recorded a $40 cost per matched new customer, below the sample owner’s $60 target.'}
                       </p>
                       <button
                         className="text-link"
                         onClick={() => setPanel('evidence')}
                       >
-                        Follow the evidence <ArrowUpRight size={16} />
+                        Review the evidence <ArrowUpRight size={16} />
                       </button>
                     </div>
                     <div className="recommendation">
+                      <div className="recommendation-brand">
+                        <Platform name="Meta" />
+                        {period === 'previous' && <Platform name="Google" />}
+                        <span>
+                          {period === 'current' ? 'META ADS' : 'PAID CHANNELS'}
+                        </span>
+                        <ArrowUpRight size={18} />
+                      </div>
                       <span className="eyebrow">
-                        <Lightbulb size={15} /> Your next move
+                        <Lightbulb size={15} /> Recommended next step
                       </span>
                       <h3>
                         {period === 'current'
@@ -435,11 +423,85 @@ export default function Workspace() {
                   </div>
                 </div>
               )}
+              <div className="metrics-grid">
+                <article className="metric-card">
+                  <span>
+                    Ad spend{' '}
+                    <span className="metric-orb metric-orb-blue">
+                      <ChartNoAxesCombined size={19} />
+                    </span>
+                  </span>
+                  <div>
+                    <strong>$2,400</strong>
+                    <MiniBars values={[8, 10, 10, 12, 10, 11, 10, 12]} />
+                  </div>
+                  <p>
+                    <span className="neutral-pill">— Same spend</span>
+                    <span>across both periods</span>
+                  </p>
+                </article>
+                <article className="metric-card">
+                  <span>
+                    Matched paid customers{' '}
+                    <span className="metric-orb metric-orb-mint">
+                      <CheckCheck size={19} />
+                    </span>
+                  </span>
+                  <div>
+                    <strong>{report.paidCustomers}</strong>
+                    <MiniBars
+                      values={
+                        period === 'current'
+                          ? [15, 14, 13, 12, 11, 10, 10, 9]
+                          : [12, 13, 14, 15, 14, 15, 16, 15]
+                      }
+                    />
+                  </div>
+                  <p>
+                    {period === 'current' ? (
+                      <>
+                        <span className="change-pill">↘ 20%</span>
+                        <span>source-matched · 60 previously</span>
+                      </>
+                    ) : (
+                      <span>60 customers with a paid source match</span>
+                    )}
+                  </p>
+                </article>
+                <article className="metric-card">
+                  <span>
+                    Cost per matched customer{' '}
+                    <span className="metric-orb metric-orb-violet">
+                      <Target size={19} />
+                    </span>
+                  </span>
+                  <div>
+                    <strong>${report.cost}</strong>
+                    <MiniBars
+                      values={
+                        period === 'current'
+                          ? [8, 10, 9, 12, 12, 14, 16, 18]
+                          : [10, 10, 10, 10, 10, 10, 10, 10]
+                      }
+                    />
+                  </div>
+                  <p>
+                    {period === 'current' ? (
+                      <>
+                        <span className="change-pill">↗ 25%</span>
+                        <span>$40 in the previous period</span>
+                      </>
+                    ) : (
+                      <span>Advertising spend ÷ matched customers</span>
+                    )}
+                  </p>
+                </article>
+              </div>
               <div className="detail-grid">
                 <section className="chart-card">
                   <div className="card-heading">
                     <div>
-                      <h2>What changed over time</h2>
+                      <h2>Is a new customer getting more expensive?</h2>
                       <p>Cost per matched new customer · four sample weeks</p>
                     </div>
                     <span className="chart-unit">USD</span>
@@ -568,18 +630,45 @@ export default function Workspace() {
                 </section>
                 <section className="coverage-card">
                   <div className="card-heading">
-                    <h2>How clear is the picture?</h2>
+                    <h2>How much can we trace?</h2>
                     <ShieldCheck size={18} />
                   </div>
-                  <div className="coverage-value">
-                    <strong>{report.coverage}%</strong>
+                  <div className="coverage-meter">
+                    <div className="coverage-ring">
+                      <svg viewBox="0 0 140 140" aria-hidden="true">
+                        <circle
+                          cx="70"
+                          cy="70"
+                          r="60"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="10"
+                          className="ring-track"
+                        />
+                        <circle
+                          cx="70"
+                          cy="70"
+                          r="60"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="10"
+                          strokeLinecap="round"
+                          pathLength="100"
+                          strokeDasharray={report.coverage + ' 100'}
+                          transform="rotate(-90 70 70)"
+                          className="ring-value"
+                        />
+                      </svg>
+                      <strong>
+                        {report.coverage}
+                        <span>%</span>
+                      </strong>
+                    </div>
                     <span>
-                      of new customers have
-                      <br />a recorded source
+                      of new customers
+                      <br />
+                      <strong>have a recorded source</strong>
                     </span>
-                  </div>
-                  <div className="coverage-track" aria-hidden="true">
-                    <span style={{ width: report.coverage + '%' }} />
                   </div>
                   <p>
                     {report.totalCustomers - report.unknownCustomers} of{' '}
@@ -590,7 +679,7 @@ export default function Workspace() {
                     className="text-link"
                     onClick={() => setPanel('coverage')}
                   >
-                    What’s included <ArrowRight size={15} />
+                    Check source coverage <ArrowRight size={15} />
                   </button>
                   <div className="coverage-note">
                     <Info size={14} /> Unknown never means zero.
@@ -600,7 +689,7 @@ export default function Workspace() {
               <section className="channels-card">
                 <div className="card-heading">
                   <div>
-                    <h2>Your channels, side by side</h2>
+                    <h2>Where to take a closer look</h2>
                     <p>Completed period · {report.label}</p>
                   </div>
                   {section === 'overview' && (
@@ -608,7 +697,7 @@ export default function Workspace() {
                       className="text-link"
                       onClick={() => setSection('channels')}
                     >
-                      Explore channels <ArrowRight size={15} />
+                      Compare channels <ArrowRight size={15} />
                     </button>
                   )}
                 </div>
@@ -681,7 +770,7 @@ export default function Workspace() {
                   <h2>
                     {reviewed
                       ? 'One finding reviewed.'
-                      : 'Your next decision starts here.'}
+                      : 'One recommendation to review.'}
                   </h2>
                   <p>
                     Demo actions last for this visit and do not change any ad
@@ -698,7 +787,10 @@ export default function Workspace() {
                 <div>
                   <Button
                     variant="outline"
-                    onClick={() => setPanel('evidence')}
+                    onClick={() => {
+                      setPeriod('current');
+                      setPanel('evidence');
+                    }}
                   >
                     Review evidence <ArrowUpRight size={15} />
                   </Button>
@@ -806,15 +898,15 @@ export default function Workspace() {
       >
         <SheetContent className="evidence-sheet">
           <SheetHeader>
-            <span className="eyebrow">The details behind the decision</span>
+            <span className="eyebrow">The evidence</span>
             <SheetTitle>
               {panel === 'evidence'
-                ? 'Follow the evidence.'
+                ? 'Review the evidence.'
                 : panel === 'coverage'
-                  ? 'An honest view of your data.'
+                  ? 'See what’s accounted for.'
                   : panel === 'connection'
                     ? `${connection} connection`
-                    : 'A brief, worth your time.'}
+                    : 'Make your next move.'}
             </SheetTitle>
             <SheetDescription>
               {panel === 'connection'
@@ -903,6 +995,18 @@ export default function Workspace() {
                 <span className="status-review">
                   Live connection not available in this preview
                 </span>
+                <div className="sheet-platform">
+                  <Platform name={connection} />
+                  <strong>
+                    {connection === 'Google'
+                      ? 'Google Ads'
+                      : connection === 'Analytics'
+                        ? 'Google Analytics'
+                        : connection === 'Sales'
+                          ? 'Sales records'
+                          : connection}
+                  </strong>
+                </div>
                 <h3>What happens during the pilot</h3>
                 <p>
                   You will authorize access through the supported provider.
@@ -925,7 +1029,7 @@ export default function Workspace() {
                   Your brief compares consistent reporting periods and
                   highlights the change most worth reviewing.
                 </p>
-                <h3>2. Follow the evidence.</h3>
+                <h3>2. Review the evidence.</h3>
                 <p>
                   Open the calculation, source coverage, and limitations behind
                   the recommendation.
