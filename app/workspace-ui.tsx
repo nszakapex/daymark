@@ -348,13 +348,13 @@ export default function Workspace() {
                       <h2>
                         {period === 'current' ? (
                           <>
-                            Same spend.
+                            Same spend.{' '}
                             <br />
                             Fewer matched customers.
                           </>
                         ) : (
                           <>
-                            A useful baseline.
+                            A useful baseline.{' '}
                             <br />
                             Both channels at $40.
                           </>
