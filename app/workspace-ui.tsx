@@ -1,6 +1,6 @@
 'use client';
 import Link from '@/components/site-link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ArrowUpRight,
   ArrowRight,
@@ -58,13 +58,15 @@ import {
 } from '@/components/ui/table';
 import { Brand } from './landing';
 import Platform from '@/components/platform-logo';
+import ReviewGuide from '@/components/review-guide';
+import { useSampleReview } from '@/components/use-sample-review';
 import { reportFor, demoFinding, type Period } from '@/lib/demo-data';
 
 const sections = [
-  { id: 'overview', label: 'Next move', icon: LayoutDashboard },
-  { id: 'channels', label: 'Compare channels', icon: ChartNoAxesCombined },
-  { id: 'decisions', label: 'Your reviews', icon: CheckCheck },
-  { id: 'connections', label: 'Your tools', icon: Plug },
+  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'channels', label: 'Compare ads', icon: ChartNoAxesCombined },
+  { id: 'decisions', label: 'Your review', icon: CheckCheck },
+  { id: 'connections', label: 'Data sources', icon: Plug },
 ] as const;
 type Section = (typeof sections)[number]['id'];
 type Context = {
@@ -79,16 +81,6 @@ type Context = {
     options?: { signal: AbortSignal },
   ) => void | Promise<void>;
 };
-function MiniBars({ values }: { values: readonly number[] }) {
-  return (
-    <div className="mini-bars" aria-hidden="true">
-      {values.map((v, i) => (
-        <i key={i} style={{ height: Math.max(v * 2, 8) }} />
-      ))}
-    </div>
-  );
-}
-
 function WorkspaceMenuButton(
   props: React.ComponentProps<typeof SidebarMenuButton>,
 ) {
@@ -105,12 +97,33 @@ function WorkspaceMenuButton(
 }
 
 export default function Workspace() {
+  const mainHeadingRef = useRef<HTMLHeadingElement>(null);
+  const sheetHeadingRef = useRef<HTMLHeadingElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
   const [section, setSection] = useState<Section>('overview');
   const [period, setPeriod] = useState<Period>('current');
   const [panel, setPanel] = useState<
-    'evidence' | 'coverage' | 'connection' | 'help' | null
+    'evidence' | 'coverage' | 'connection' | 'help' | 'review' | null
   >(null);
-  const [reviewed, setReviewed] = useState(false);
+  const { review, setReview, storageAvailable } = useSampleReview();
+  const reviewed = review.completed;
+  useEffect(() => {
+    if (panel) {
+      sheetRef.current?.scrollTo({ top: 0 });
+      sheetHeadingRef.current?.focus({ preventScroll: true });
+    }
+  }, [panel]);
+  useEffect(() => {
+    mainHeadingRef.current?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0 });
+  }, [section]);
+  function openReview() {
+    setPeriod('current');
+    setPanel('review');
+  }
+  function resetReview() {
+    setReview({ checks: [false, false, false], completed: false });
+  }
   const [connection, setConnection] = useState('Meta');
   const report = reportFor(period);
   useEffect(() => {
@@ -192,9 +205,12 @@ export default function Workspace() {
           </SidebarMenu>
           <div className="sidebar-note">
             <div>
-              <span className="status-dot" /> One review. A clearer next step.
+              <span className="status-dot" /> Understand the change.
             </div>
-            <p>Keep the numbers, the evidence, and your decision together.</p>
+            <p>
+              See the numbers, work through the checklist, and decide what to
+              check next.
+            </p>
           </div>
         </SidebarContent>
         <SidebarFooter className="app-sidebar-footer">
@@ -204,8 +220,8 @@ export default function Workspace() {
           <Link href="/login" className="profile-link">
             <span className="profile-avatar">D</span>
             <span>
-              <strong>Demo explorer</strong>
-              <small>Open your own workspace</small>
+              <strong>Early access</strong>
+              <small>Save early-access details</small>
             </span>
             <ArrowUpRight size={16} />
           </Link>
@@ -221,34 +237,34 @@ export default function Workspace() {
           </div>
           <div>
             <span className="sample-tag">
-              <CircleDashed size={13} /> Demo · fictional data
+              <CircleDashed size={13} /> Sample report
             </span>
-            <Link href="/" aria-label="Back to website">
+            <Link href="/" aria-label="Daymark home">
               <ArrowUpRight size={18} />
             </Link>
           </div>
         </header>
-        <main className="app-main">
+        <div className="app-main" id="main-content" tabIndex={-1}>
           <div className="brief-heading">
             <div>
-              <span className="eyebrow">June Paper Co. / Marketing review</span>
-              <h1>
+              <span className="eyebrow">June Paper Co. · Sample business</span>
+              <h1 ref={mainHeadingRef} tabIndex={-1}>
                 {section === 'overview'
-                  ? 'Your next move.'
+                  ? 'Your marketing, explained.'
                   : section === 'channels'
-                    ? 'Compare your channels.'
+                    ? 'Compare your advertising.'
                     : section === 'decisions'
-                      ? 'What you’ve reviewed.'
-                      : 'Your tools. Working together.'}
+                      ? 'Your review checklist.'
+                      : 'Where the numbers come from.'}
               </h1>
               <p>
                 {section === 'overview'
-                  ? 'See what changed. Decide what happens next.'
+                  ? 'See what changed, why it matters, and what to check next.'
                   : section === 'channels'
-                    ? 'See where your spend goes and which results deserve a closer look.'
+                    ? 'Compare what you spent with the new customers linked to each ad platform.'
                     : section === 'decisions'
-                      ? 'Your decisions, with the numbers that informed them.'
-                      : 'Keep your workflow. Bring the important numbers into one place.'}
+                      ? 'A short checklist to help you decide what to do about Meta.'
+                      : 'See what is included in this sample and which connections are still being built.'}
               </p>
             </div>
             {(section === 'overview' || section === 'channels') && (
@@ -261,7 +277,7 @@ export default function Workspace() {
               >
                 <SelectTrigger
                   className="period-select"
-                  aria-label="Reporting period"
+                  aria-label="Dates to review"
                 >
                   <Clock3 size={15} />
                   <SelectValue>{report.label}</SelectValue>
@@ -310,8 +326,8 @@ export default function Workspace() {
               >
                 <ShieldCheck size={19} />
                 <span>
-                  <strong>{report.unknownCustomers} unknown sources</strong>
-                  Worth checking
+                  <strong>{report.unknownCustomers} missing sources</strong>
+                  Customers to check
                 </span>
                 <ArrowUpRight size={16} />
               </button>
@@ -333,7 +349,7 @@ export default function Workspace() {
                     <span className="eyebrow">
                       {period === 'current'
                         ? 'Your priority'
-                        : 'Your previous baseline'}
+                        : 'Earlier period'}
                     </span>
                     <span className="attention-pill">
                       {period === 'current'
@@ -348,28 +364,39 @@ export default function Workspace() {
                       <h2>
                         {period === 'current' ? (
                           <>
-                            Same spend.{' '}
-                            <br />
-                            Fewer matched customers.
+                            Meta cost more. <br />
+                            Here’s what to check.
                           </>
                         ) : (
                           <>
-                            A useful baseline.{' '}
-                            <br />
-                            Both channels at $40.
+                            Your earlier results. <br />
+                            Both platforms at $40.
                           </>
                         )}
                       </h2>
                       <p>
                         {period === 'current'
-                          ? 'Cost per matched new customer rose 25%. The change is concentrated in Meta; Google held steady.'
-                          : 'Both paid channels recorded a $40 cost per matched new customer, below the sample owner’s $60 target.'}
+                          ? 'Meta’s ad cost per new customer rose from $40 to $80. Google stayed at $40. Check the missing customer information before spending more.'
+                          : 'Google and Meta each spent $40 per new customer linked to their ads. That is below this sample business’s $60 target.'}
                       </p>
+                      {period === 'current' && (
+                        <Button
+                          className="compact-review-action"
+                          onClick={openReview}
+                        >
+                          {reviewed
+                            ? 'View your review'
+                            : review.checks.some(Boolean)
+                              ? 'Continue review'
+                              : 'Start review'}{' '}
+                          <ArrowRight size={17} />
+                        </Button>
+                      )}
                       <button
                         className="text-link"
                         onClick={() => setPanel('evidence')}
                       >
-                        Review the evidence <ArrowUpRight size={16} />
+                        See how we worked this out <ArrowUpRight size={16} />
                       </button>
                     </div>
                     <div className="recommendation">
@@ -391,12 +418,12 @@ export default function Workspace() {
                       </h3>
                       <p>
                         {period === 'current'
-                          ? 'Check the campaign’s customer outcomes and missing source data before committing more spend.'
-                          : 'Use completed periods and the same matching rules when reviewing future performance.'}
+                          ? 'Start with the 12 new customers who have no marketing source recorded. The checklist explains what to look for.'
+                          : 'Compare the same number of days and count customers in the same way. Use the date menu to return to the latest sample.'}
                       </p>
                       <div className="recommendation-bottom">
                         <span>
-                          <Target size={14} /> Target: $60 per customer
+                          <Target size={14} /> Sample target: $60 per customer
                         </span>
                         {period === 'current' && (
                           <Button
@@ -404,22 +431,23 @@ export default function Workspace() {
                               'review-button ' + (reviewed ? 'reviewed' : '')
                             }
                             variant="outline"
-                            onClick={() => setReviewed((v) => !v)}
+                            onClick={openReview}
                           >
                             {reviewed ? (
                               <CheckCheck size={15} />
                             ) : (
                               <Check size={15} />
                             )}{' '}
-                            {reviewed ? 'Reviewed' : 'Mark reviewed'}
+                            {reviewed ? 'View your review' : 'Start review'}
                           </Button>
                         )}
                       </div>
                     </div>
                   </div>
                   <div className="insight-disclaimer">
-                    <Info size={13} /> Based on matched records. Missing sources
-                    and small samples can affect this assessment.
+                    <Info size={13} /> Sample figures, not your business data.
+                    The report links recorded ad clicks to first purchases; it
+                    does not prove the ads caused them.
                   </div>
                 </div>
               )}
@@ -433,7 +461,6 @@ export default function Workspace() {
                   </span>
                   <div>
                     <strong>$2,400</strong>
-                    <MiniBars values={[8, 10, 10, 12, 10, 11, 10, 12]} />
                   </div>
                   <p>
                     <span className="neutral-pill">— Same spend</span>
@@ -442,48 +469,34 @@ export default function Workspace() {
                 </article>
                 <article className="metric-card">
                   <span>
-                    Matched paid customers{' '}
+                    New customers linked to ads{' '}
                     <span className="metric-orb metric-orb-mint">
                       <CheckCheck size={19} />
                     </span>
                   </span>
                   <div>
                     <strong>{report.paidCustomers}</strong>
-                    <MiniBars
-                      values={
-                        period === 'current'
-                          ? [15, 14, 13, 12, 11, 10, 10, 9]
-                          : [12, 13, 14, 15, 14, 15, 16, 15]
-                      }
-                    />
                   </div>
                   <p>
                     {period === 'current' ? (
                       <>
                         <span className="change-pill">↘ 20%</span>
-                        <span>source-matched · 60 previously</span>
+                        <span>60 in the earlier period</span>
                       </>
                     ) : (
-                      <span>60 customers with a paid source match</span>
+                      <span>60 first-time customers linked to ads</span>
                     )}
                   </p>
                 </article>
                 <article className="metric-card">
                   <span>
-                    Cost per matched customer{' '}
+                    Ad cost per customer{' '}
                     <span className="metric-orb metric-orb-violet">
                       <Target size={19} />
                     </span>
                   </span>
                   <div>
                     <strong>${report.cost}</strong>
-                    <MiniBars
-                      values={
-                        period === 'current'
-                          ? [8, 10, 9, 12, 12, 14, 16, 18]
-                          : [10, 10, 10, 10, 10, 10, 10, 10]
-                      }
-                    />
                   </div>
                   <p>
                     {period === 'current' ? (
@@ -492,26 +505,35 @@ export default function Workspace() {
                         <span>$40 in the previous period</span>
                       </>
                     ) : (
-                      <span>Advertising spend ÷ matched customers</span>
+                      <span>Ad spend ÷ customers linked to ads</span>
                     )}
                   </p>
                 </article>
               </div>
+              <p className="metric-definition">
+                <Info size={17} />
+                <span>
+                  <strong>What counts as a customer?</strong> A first purchase
+                  linked to a recorded ad click. Customers with no recorded
+                  source are shown separately. Lower ad cost is better, but it
+                  does not tell you your profit.
+                </span>
+              </p>
               <div className="detail-grid">
                 <section className="chart-card">
                   <div className="card-heading">
                     <div>
-                      <h2>Is a new customer getting more expensive?</h2>
-                      <p>Cost per matched new customer · four sample weeks</p>
+                      <h2>How customer cost changed</h2>
+                      <p>Ad cost per customer · four complete weeks</p>
                     </div>
                     <span className="chart-unit">USD</span>
                   </div>
                   <div className="chart-legend">
                     <span>
-                      <i /> Selected period
+                      <i /> Selected dates
                     </span>
                     <span>
-                      <i /> Previous baseline
+                      <i /> Earlier period
                     </span>
                   </div>
                   <svg
@@ -519,8 +541,8 @@ export default function Workspace() {
                     viewBox="0 0 650 225"
                     aria-label={
                       period === 'current'
-                        ? 'Weekly acquisition costs rose from $42.86 to $60. Previous baseline was $40.'
-                        : 'Weekly acquisition cost was $40 throughout the previous period.'
+                        ? 'Weekly ad cost per linked customer rose from $42.86 to $60. The earlier period was $40.'
+                        : 'Weekly ad cost per linked customer was $40 throughout the earlier period.'
                     }
                   >
                     <defs>
@@ -627,10 +649,21 @@ export default function Workspace() {
                       </text>
                     ))}
                   </svg>
+                  <dl className="weekly-values">
+                    {report.weeklyCustomers.map((customers, index) => (
+                      <div key={index}>
+                        <dt>Week {index + 1}</dt>
+                        <dd>
+                          {'$'}
+                          {(600 / customers).toFixed(2)}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
                 </section>
                 <section className="coverage-card">
                   <div className="card-heading">
-                    <h2>How much can we trace?</h2>
+                    <h2>How complete is this report?</h2>
                     <ShieldCheck size={18} />
                   </div>
                   <div className="coverage-meter">
@@ -667,29 +700,31 @@ export default function Workspace() {
                     <span>
                       of new customers
                       <br />
-                      <strong>have a recorded source</strong>
+                      <strong>have a source recorded</strong>
                     </span>
                   </div>
                   <p>
                     {report.totalCustomers - report.unknownCustomers} of{' '}
-                    {report.totalCustomers} new customers have a source match.{' '}
-                    {report.unknownCustomers} remain unassigned.
+                    {report.totalCustomers} new customers have a recorded
+                    marketing source. {report.unknownCustomers} have no source
+                    recorded.
                   </p>
                   <button
                     className="text-link"
                     onClick={() => setPanel('coverage')}
                   >
-                    Check source coverage <ArrowRight size={15} />
+                    See who is included <ArrowRight size={15} />
                   </button>
                   <div className="coverage-note">
-                    <Info size={14} /> Unknown never means zero.
+                    <Info size={14} /> Missing information can change the
+                    result.
                   </div>
                 </section>
               </div>
               <section className="channels-card">
                 <div className="card-heading">
                   <div>
-                    <h2>Where to take a closer look</h2>
+                    <h2>Your advertising side by side</h2>
                     <p>Completed period · {report.label}</p>
                   </div>
                   {section === 'overview' && (
@@ -697,18 +732,21 @@ export default function Workspace() {
                       className="text-link"
                       onClick={() => setSection('channels')}
                     >
-                      Compare channels <ArrowRight size={15} />
+                      Compare ads <ArrowRight size={15} />
                     </button>
                   )}
                 </div>
-                <Table className="channel-table">
+                <Table
+                  className="channel-table"
+                  aria-label="Advertising comparison"
+                >
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Channel</TableHead>
+                      <TableHead>Ad platform</TableHead>
                       <TableHead>Spend</TableHead>
-                      <TableHead>Matched new customers</TableHead>
-                      <TableHead>Cost / customer</TableHead>
-                      <TableHead>Against $60 target</TableHead>
+                      <TableHead>New customers linked</TableHead>
+                      <TableHead>Cost per customer</TableHead>
+                      <TableHead>Compared with $60 target</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -753,9 +791,64 @@ export default function Workspace() {
                     ))}
                   </TableBody>
                 </Table>
+                <div className="mobile-ad-comparison">
+                  {[
+                    {
+                      name: 'Google',
+                      label: 'Google Ads',
+                      spend: 1440,
+                      customers: report.googleCustomers,
+                      cost: report.googleCost,
+                    },
+                    {
+                      name: 'Meta',
+                      label: 'Meta Ads',
+                      spend: 960,
+                      customers: report.metaCustomers,
+                      cost: report.metaCost,
+                    },
+                  ].map((channel) => (
+                    <article key={channel.name}>
+                      <h3>
+                        <Platform name={channel.name} />
+                        {channel.label}
+                      </h3>
+                      <dl>
+                        <div>
+                          <dt>Ad spend</dt>
+                          <dd>
+                            {'$'}
+                            {channel.spend.toLocaleString('en-US')}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>New customers linked</dt>
+                          <dd>{channel.customers}</dd>
+                        </div>
+                        <div>
+                          <dt>Cost per customer</dt>
+                          <dd>
+                            {'$'}
+                            {channel.cost}
+                          </dd>
+                        </div>
+                      </dl>
+                      <span
+                        className={
+                          channel.cost > 60 ? 'status-review' : 'status-healthy'
+                        }
+                      >
+                        {channel.cost > 60
+                          ? 'Above the $60 target'
+                          : 'Below the $60 target'}
+                      </span>
+                    </article>
+                  ))}
+                </div>
                 <div className="table-footnote">
-                  Each new customer is assigned to at most one source. Revenue
-                  and profit are not inferred from these counts.
+                  A customer counts once, under their last recorded source
+                  before a first purchase. Cost per customer is not a profit
+                  calculation.
                 </div>
               </section>
             </>
@@ -769,12 +862,13 @@ export default function Workspace() {
                 <div>
                   <h2>
                     {reviewed
-                      ? 'One finding reviewed.'
-                      : 'One recommendation to review.'}
+                      ? 'You’ve finished this review.'
+                      : 'One clear next step.'}
                   </h2>
                   <p>
-                    Demo actions last for this visit and do not change any ad
-                    accounts.
+                    {storageAvailable
+                      ? 'Your sample progress is saved in this browser. Your ads are unchanged.'
+                      : 'Progress lasts until you leave or reload this page. Your ads are unchanged.'}
                   </p>
                 </div>
               </div>
@@ -783,7 +877,11 @@ export default function Workspace() {
                   {reviewed ? 'Reviewed' : 'Awaiting review'}
                 </span>
                 <h3>{demoFinding.title}</h3>
-                <p>{demoFinding.finding}</p>
+                <p>
+                  {reviewed
+                    ? 'Next: check the missing source fields in your sales records before deciding whether to increase Meta’s budget.'
+                    : demoFinding.finding}
+                </p>
                 <div>
                   <Button
                     variant="outline"
@@ -794,15 +892,20 @@ export default function Workspace() {
                   >
                     Review evidence <ArrowUpRight size={15} />
                   </Button>
-                  <Button onClick={() => setReviewed((v) => !v)}>
-                    {reviewed ? 'Mark as unreviewed' : 'Mark reviewed'}
+                  <Button onClick={openReview}>
+                    {reviewed
+                      ? 'Reopen checklist'
+                      : review.checks.some(Boolean)
+                        ? 'Continue review'
+                        : 'Start review'}
                     <Check size={15} />
                   </Button>
                 </div>
               </article>
               <p className="muted-note">
-                A review records your attention. It does not mean the
-                recommendation was implemented or produced a result.
+                Completing the checklist means you understand what to check. It
+                does not confirm that the business records were corrected or
+                that an ad budget changed.
               </p>
             </section>
           )}
@@ -811,7 +914,7 @@ export default function Workspace() {
               <div className="connections-intro">
                 <ShieldCheck size={20} />
                 <div>
-                  <strong>Your tools stay yours.</strong>
+                  <strong>This is a sample report.</strong>
                   <p>
                     This workspace uses fictional records. No live accounts are
                     connected, and no account access is requested in the demo.
@@ -822,32 +925,32 @@ export default function Workspace() {
                 {[
                   {
                     name: 'Meta',
-                    desc: 'Advertising spend, campaign performance, and supported Instagram insights.',
+                    desc: 'Sample ad spending and new customers linked to Meta ads.',
                     role: 'Sample advertising records',
                   },
                   {
                     name: 'Google',
-                    desc: 'Advertising spend and campaign performance from Google Ads.',
+                    desc: 'Sample ad spending and new customers linked to Google Ads.',
                     role: 'Sample advertising records',
                   },
                   {
                     name: 'Sales',
-                    desc: 'New paying customers, source matches, and payment confirmations.',
+                    desc: 'First-time customers and the marketing source recorded with their purchase.',
                     role: 'Sample sales records',
                   },
                   {
                     name: 'Analytics',
-                    desc: 'Website journeys and configured conversion events from Google Analytics.',
+                    desc: 'Planned: website visits and important actions, such as purchases or enquiries.',
                     role: 'Planned connection',
                   },
                   {
                     name: 'Shopify',
-                    desc: 'Orders, refunds, and supported customer journey information.',
+                    desc: 'Planned: orders, refunds, and first-time customers from your shop.',
                     role: 'Planned connection',
                   },
                   {
                     name: 'Stripe',
-                    desc: 'Confirmed payment outcomes and refunds from your payment account.',
+                    desc: 'Planned: successful payments and refunds from your Stripe account.',
                     role: 'Planned connection',
                   },
                 ].map((c) => (
@@ -856,7 +959,7 @@ export default function Workspace() {
                       <Platform name={c.name} />
                       <span className="label-pill">
                         {c.role.startsWith('Sample')
-                          ? 'Demo source'
+                          ? 'Sample data'
                           : 'Planned'}
                       </span>
                     </div>
@@ -873,22 +976,37 @@ export default function Workspace() {
                     <button
                       className="text-link"
                       onClick={() => openConnection(c.name)}
+                      aria-label={
+                        'About ' +
+                        (c.name === 'Google'
+                          ? 'Google Ads'
+                          : c.name === 'Analytics'
+                            ? 'Google Analytics'
+                            : c.name === 'Sales'
+                              ? 'sales records'
+                              : c.name)
+                      }
                     >
-                      View connection details <ArrowUpRight size={15} />
+                      What is included <ArrowUpRight size={15} />
                     </button>
                   </article>
                 ))}
               </div>
             </>
           )}
+          {section === 'decisions' &&
+            (reviewed || review.checks.some(Boolean)) && (
+              <button className="reset-review text-link" onClick={resetReview}>
+                Start this sample review over
+              </button>
+            )}
           <footer className="app-footer">
             <span>
-              <span className="status-dot" /> A considered next step, backed by
-              evidence.
+              <span className="status-dot" /> All amounts in US dollars.
             </span>
             <span>Sample snapshot · Sep 4, 2026</span>
           </footer>
-        </main>
+        </div>
       </SidebarInset>
       <Sheet
         open={panel !== null}
@@ -896,28 +1014,70 @@ export default function Workspace() {
           if (!open) setPanel(null);
         }}
       >
-        <SheetContent className="evidence-sheet">
+        <SheetContent
+          className="evidence-sheet"
+          ref={sheetRef}
+          initialFocus={sheetHeadingRef}
+          finalFocus={mainHeadingRef}
+        >
           <SheetHeader>
-            <span className="eyebrow">The evidence</span>
-            <SheetTitle>
-              {panel === 'evidence'
-                ? 'Review the evidence.'
-                : panel === 'coverage'
-                  ? 'See what’s accounted for.'
+            <span className="eyebrow">
+              {panel === 'review'
+                ? 'Your checklist'
+                : panel === 'help'
+                  ? 'Help'
                   : panel === 'connection'
-                    ? `${connection} connection`
-                    : 'Make your next move.'}
+                    ? 'Data source'
+                    : 'Behind the numbers'}
+            </span>
+            <SheetTitle ref={sheetHeadingRef} tabIndex={-1}>
+              {panel === 'review'
+                ? 'Review Meta in three steps.'
+                : panel === 'evidence'
+                  ? 'How we worked this out.'
+                  : panel === 'coverage'
+                    ? 'Which customers are included?'
+                    : panel === 'connection'
+                      ? connection === 'Google'
+                        ? 'Google Ads'
+                        : connection === 'Analytics'
+                          ? 'Google Analytics'
+                          : connection === 'Sales'
+                            ? 'Sales records'
+                            : connection
+                      : 'A quick guide to Daymark.'}
             </SheetTitle>
             <SheetDescription>
-              {panel === 'connection'
-                ? 'What this connection will contribute.'
-                : panel === 'help'
-                  ? 'Start with what changed. Look closer only when you need to.'
-                  : 'All records in this workspace are fictional. Figures are reproducible from the sample totals.'}
+              {panel === 'review'
+                ? 'Read each step, check it off, and leave knowing what to do next.'
+                : panel === 'connection'
+                  ? 'What this source means for your report.'
+                  : panel === 'help'
+                    ? 'Start with what changed. Look closer only when you need to.'
+                    : 'These sample figures show how Daymark explains a result. They are not your business data.'}
             </SheetDescription>
           </SheetHeader>
           <div className="sheet-body">
-            {panel === 'evidence' ? (
+            {panel === 'review' ? (
+              <ReviewGuide
+                checks={review.checks}
+                storageAvailable={storageAvailable}
+                onCheck={(index, checked) =>
+                  setReview((previous) => ({
+                    checks: previous.checks.map((value, i) =>
+                      i === index ? checked : value,
+                    ),
+                    completed: false,
+                  }))
+                }
+                onDetails={setPanel}
+                onFinish={() => {
+                  setReview((previous) => ({ ...previous, completed: true }));
+                  setPanel(null);
+                  setSection('decisions');
+                }}
+              />
+            ) : panel === 'evidence' ? (
               <>
                 <span className="label-pill">{report.label}</span>
                 <h3>The calculation</h3>
@@ -926,8 +1086,8 @@ export default function Workspace() {
                   <strong>${report.cost}</strong>
                 </div>
                 <p>
-                  Advertising spend divided by new paying customers matched to a
-                  paid source.
+                  We divide ad spending by first-time customers whose purchase
+                  can be linked to an ad.
                 </p>
                 <div className="evidence-row">
                   <span>Google Ads</span>
@@ -941,25 +1101,31 @@ export default function Workspace() {
                     $960 ÷ {report.metaCustomers} = ${report.metaCost}
                   </strong>
                 </div>
-                <h3>How records are matched</h3>
+                <h3>What “linked to ads” means</h3>
                 <p>
-                  The sample assumes one last-click source within 28 days before
-                  a first confirmed purchase. Each new customer counts once.
-                  Both periods contain 28 completed days.
+                  In this sample, a customer is linked to the last recorded ad
+                  they clicked within 28 days before their first purchase. Each
+                  customer counts once. Both reporting periods contain 28 full
+                  days.
                 </p>
-                <h3>What we can conclude</h3>
+                <h3>What the numbers show</h3>
                 <p>
                   {period === 'current'
                     ? demoFinding.basis
-                    : 'Both channels were below the sample owner’s $60 acquisition target. No earlier period is included.'}
+                    : 'Both platforms were below the sample business’s $60 cost-per-customer target. This is the earliest period in the sample.'}
                 </p>
-                <h3>What we cannot conclude</h3>
-                <p>{demoFinding.limits}</p>
+                <h3>What still needs checking</h3>
+                <p>
+                  {period === 'current'
+                    ? demoFinding.limits
+                    : '10 customers have no source recorded. These records cannot tell us whether an ad caused a purchase or whether the business made a profit.'}
+                </p>
                 <div className="sheet-callout">
                   <Info size={18} />
                   <span>
-                    Matched sales do not establish causal impact. No revenue or
-                    profit estimate is made here.
+                    A recorded ad click does not prove an ad caused a purchase.
+                    The $60 target belongs to this sample business; it is not a
+                    general rule.
                   </span>
                 </div>
               </>
@@ -969,13 +1135,14 @@ export default function Workspace() {
                   <strong>{report.coverage}%</strong>
                 </div>
                 <p>
-                  Source coverage measures how many new customers have any
-                  recorded source, including non-paid sources.
+                  This is the share of new customers with a recorded marketing
+                  source. It includes ads and other sources, such as email or
+                  referrals.
                 </p>
                 {[
-                  ['Matched to paid marketing', report.paidCustomers],
-                  ['Matched to other sources', report.otherCustomers],
-                  ['Unknown source', report.unknownCustomers],
+                  ['Linked to ads', report.paidCustomers],
+                  ['Other recorded sources', report.otherCustomers],
+                  ['No source recorded', report.unknownCustomers],
                   ['Total new customers', report.totalCustomers],
                 ].map(([label, value]) => (
                   <div className="evidence-row" key={label}>
@@ -983,17 +1150,18 @@ export default function Workspace() {
                     <strong>{value}</strong>
                   </div>
                 ))}
-                <h3>Unknown stays unknown.</h3>
+                <h3>Why missing sources matter</h3>
                 <p>
-                  We do not distribute unmatched customers across advertising
-                  channels or treat an absent value as zero. Missing source
-                  records may change the interpretation.
+                  Some of these customers may have come from an ad, but we do
+                  not know which one. We leave them out of the ad comparison
+                  instead of guessing. Checking the missing fields could change
+                  the result.
                 </p>
               </>
             ) : panel === 'connection' ? (
               <>
                 <span className="status-review">
-                  Live connection not available in this preview
+                  Live connection in development
                 </span>
                 <div className="sheet-platform">
                   <Platform name={connection} />
@@ -1007,43 +1175,52 @@ export default function Workspace() {
                           : connection}
                   </strong>
                 </div>
-                <h3>What happens during the pilot</h3>
+                <h3>When connections become available</h3>
                 <p>
-                  You will authorize access through the supported provider.
-                  Daymark will request the data needed to produce your brief,
-                  and show when it last updated.
+                  Connecting an account will require your permission. For now,
+                  the example uses sample numbers. Selecting a tool on your
+                  early-access profile tells us what you use; it does not
+                  connect the account.
                 </p>
-                <h3>No credentials needed here</h3>
+                <h3>What you can do today</h3>
                 <p>
-                  This demo does not collect passwords, access tokens, or real
-                  customer records.
+                  Save your business details and which tools you use. Email
+                  contact about early access is optional.
                 </p>
                 <Link className="button-primary" href="/login">
-                  Create your pilot profile <ArrowUpRight size={16} />
+                  Get early access <ArrowUpRight size={16} />
                 </Link>
               </>
             ) : (
               <>
                 <h3>1. See the change.</h3>
                 <p>
-                  Your brief compares consistent reporting periods and
-                  highlights the change most worth reviewing.
+                  Overview compares two complete 28-day periods and highlights
+                  one change worth checking. The date menu lets you switch
+                  between them.
                 </p>
                 <h3>2. Review the evidence.</h3>
                 <p>
-                  Open the calculation, source coverage, and limitations behind
-                  the recommendation.
+                  “See how we worked this out” shows the calculation and which
+                  customers are included. Missing information stays visible.
                 </p>
                 <h3>3. Make your decision.</h3>
                 <p>
-                  Review the recommendation and decide whether to act. The demo
-                  does not change budgets or publish content.
+                  “Start review” opens three short steps. Check them off as you
+                  read, then finish your review. This sample saves progress in
+                  this browser and does not change any ads.
                 </p>
                 <Link className="text-link" href="/">
                   Back to Daymark <ArrowLeft size={16} />
                 </Link>
               </>
             )}
+            {(panel === 'evidence' || panel === 'coverage') &&
+              period === 'current' && (
+                <Button className="sheet-next-action" onClick={openReview}>
+                  Open review checklist <ArrowRight size={17} />
+                </Button>
+              )}
           </div>
         </SheetContent>
       </Sheet>

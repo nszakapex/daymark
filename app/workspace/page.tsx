@@ -24,24 +24,21 @@ export default async function ProfilePage() {
           <span className="sample-tag">
             <CircleDashed size={13} /> Early access
           </span>
-          <Link href="/demo">Explore demo</Link>
+          <Link href="/demo">Sample report</Link>
           <a href={chatGPTSignOutPath('/')} target="_top">
             Sign out
           </a>
         </div>
       </header>
-      <main className="profile-container">
+      <main className="profile-container" id="main-content" tabIndex={-1}>
         <section className="profile-intro">
           <span className="eyebrow">
-            <span className="status-dot" /> Your Daymark workspace
+            <span className="status-dot" /> Your early-access profile
           </span>
-          <h1>
-            A little about you.
-            <br />A lot more clarity.
-          </h1>
+          <h1>Your early-access details.</h1>
           <p>
-            Tell us what you want to understand and where your marketing
-            happens. Your profile helps shape a useful first pilot.
+            Choose what you want to understand and the tools you use. You can
+            update or delete these details here.
           </p>
           <div className="profile-steps">
             <div>
@@ -56,20 +53,23 @@ export default async function ProfilePage() {
             <div>
               <span>2</span>
               <div>
-                <strong>Make this workspace yours</strong>
-                <p>Save your business details and contact preference.</p>
+                <strong>Your business details</strong>
+                <p>Save your preferences for early access.</p>
               </div>
             </div>
             <div>
               <span>3</span>
               <div>
-                <strong>See what your brief could look like</strong>
-                <p>Explore the sample. Live connections come later.</p>
+                <strong>Try a sample report</strong>
+                <p>
+                  Work through a review while live connections are in
+                  development.
+                </p>
               </div>
             </div>
           </div>
           <Link href="/demo" className="text-link">
-            Take a look inside the sample workspace <ArrowUpRight size={16} />
+            Explore sample report <ArrowUpRight size={16} />
           </Link>
         </section>
         <ProfileForm

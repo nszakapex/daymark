@@ -39,9 +39,9 @@ export function reportFor(period: Period) {
 export const demoFinding = {
   title: 'Review Meta before increasing its budget.',
   finding:
-    'Cost per matched new customer increased 25%, while spending stayed the same.',
+    'Overall ad cost per linked customer rose from $40 to $50. Meta accounts for the increase.',
   basis:
-    'Meta matched customers fell from 24 to 12; Google remained at 36. Current Meta cost is $80 per matched new customer, above the sample owner’s $60 target.',
+    'New customers linked to Meta fell from 24 to 12; Google stayed at 36. Meta cost $80 per customer, above this sample business’s $60 target.',
   limits:
-    '12 matched Meta customers is a limited sample. Missing source data may affect comparisons. These are recorded associations, not proof of incremental sales caused by ads.',
+    'Only 12 new customers were linked to Meta, so a few missing or late records could change the result. Check those records before changing your budget.',
 };

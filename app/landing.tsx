@@ -34,7 +34,7 @@ export default function Landing() {
           Log in <ArrowUpRight size={16} />
         </Link>
       </header>
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <section className="hero">
           <div className="hero-copy">
             <span className="eyebrow">
@@ -46,18 +46,18 @@ export default function Landing() {
               <span>Before you spend more.</span>
             </h1>
             <p>
-              Bring your marketing numbers together. Spot the change worth your
-              attention. Get a next step you can actually use.
+              See what you spent on ads, how many new customers were linked to
+              them, and what to check before you spend more.
             </p>
             <div className="hero-actions">
               <Link href="/demo" className="button-primary">
-                Try Daymark <ArrowUpRight size={19} />
+                Explore sample report <ArrowUpRight size={19} />
               </Link>
-              <span>Sample data. Zero setup.</span>
+              <span>No account or setup needed.</span>
             </div>
             <div className="hero-footnote">
-              <Check size={15} /> Explore a real product experience with sample
-              data.
+              <Check size={15} /> Try the review checklist with a sample
+              business.
             </div>
           </div>
           <div className="hero-product">
@@ -83,7 +83,7 @@ export default function Landing() {
                   <small>Unchanged from last period</small>
                 </div>
                 <div>
-                  <span>Paid customer cost</span>
+                  <span>Ad cost per customer</span>
                   <strong>
                     $50<span className="orange"> ↗</span>
                   </strong>
@@ -105,10 +105,10 @@ export default function Landing() {
                   </h3>
                   <p>
                     Your spending held steady. Fewer new paying customers could
-                    be matched to Meta.
+                    be linked to Meta.
                   </p>
                   <Link href="/demo">
-                    See the full picture <ArrowRight size={16} />
+                    Open this sample report <ArrowRight size={16} />
                   </Link>
                 </div>
               </div>
@@ -122,7 +122,7 @@ export default function Landing() {
           </div>
         </section>
         <div className="ecosystem-strip">
-          <span>Built around the tools you already use</span>
+          <span>Connections we are building</span>
           <div className="ecosystem-logos">
             {[
               { name: 'Meta', label: 'Meta' },
@@ -141,51 +141,48 @@ export default function Landing() {
         </div>
         <section className="how-section" id="how-it-works">
           <div>
-            <span className="eyebrow">A little clarity goes a long way</span>
-            <h2>
-              The right information.
-              <br />
-              Right when you need to decide.
-            </h2>
+            <span className="eyebrow">How to use the sample</span>
+            <h2>Three steps to a clearer decision.</h2>
           </div>
           <div className="steps">
             <article>
               <span>01</span>
-              <h3>Bring your tools together.</h3>
+              <h3>See what changed.</h3>
               <p>
-                Connect the marketing and sales accounts you already use. Keep
-                your existing workflow.
+                Compare ad spending with new customers over two complete
+                periods. See the change that deserves attention.
               </p>
             </article>
             <article>
               <span>02</span>
-              <h3>Understand what changed.</h3>
+              <h3>Understand the numbers.</h3>
               <p>
-                See important shifts, with clear calculations and an honest view
-                of missing data.
+                Open the calculation. See which customers are included and what
+                information is missing.
               </p>
             </article>
             <article>
               <span>03</span>
-              <h3>Know what to review next.</h3>
+              <h3>Work through the next step.</h3>
               <p>
-                One specific recommendation. The evidence behind it. Room to
-                make your own decision.
+                Follow a short checklist, save your sample review, and leave
+                knowing what you would check in your business.
               </p>
             </article>
           </div>
         </section>
         <section className="access-section" id="early-access">
           <div>
-            <span className="eyebrow">Taking shape, with purpose</span>
-            <h2>Make your next move a clearer one.</h2>
+            <span className="eyebrow">Early access</span>
+            <h2>Want to use your own numbers?</h2>
             <p>
-              Like what you see? Save a pilot profile and tell us which tools
-              you use. Live connections are still in development.
+              Save your business details and tell us which tools you use. Live
+              connections are in development. You can choose whether to receive
+              email about early access.
             </p>
           </div>
           <Link href="/login" className="button-primary">
-            Create your pilot profile <ArrowUpRight size={19} />
+            Get early access <ArrowUpRight size={19} />
           </Link>
         </section>
       </main>
@@ -193,7 +190,7 @@ export default function Landing() {
         <Brand />
         <span>Clear numbers. Your decision.</span>
         <Link href="/login">
-          Your workspace <ArrowUpRight size={15} />
+          Early-access profile <ArrowUpRight size={15} />
         </Link>
       </footer>
     </div>

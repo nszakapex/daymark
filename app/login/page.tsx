@@ -58,15 +58,13 @@ export default async function LoginPage() {
           <span className="large-insight-icon">
             <ScanLine size={25} />
           </span>
-          <h2>
-            A clearer picture
-            <br />
-            starts here.
-          </h2>
+          <h1 id="main-content" tabIndex={-1}>
+            Get early access.
+          </h1>
           <p>
             {user
-              ? 'Your account is ready. Tell us a little about your business to save your pilot profile.'
-              : 'Sign in to save your pilot profile and tell us which tools your business uses.'}
+              ? 'You’re signed in. Save your business details and tell us which tools you use.'
+              : 'Sign in to save your business details and email preference. You can try the sample report without an account.'}
           </p>
           <a
             className="button-primary auth-primary"
@@ -74,18 +72,19 @@ export default async function LoginPage() {
             target={user ? undefined : '_top'}
           >
             {user ? <Check size={18} /> : <ShieldCheck size={18} />}{' '}
-            {user ? 'Open your workspace' : 'Continue with ChatGPT'}
+            {user ? 'Open my early-access profile' : 'Continue with ChatGPT'}
             <ArrowRight size={17} />
           </a>
-          <div className="auth-divider">or take a look around</div>
+          <div className="auth-divider">just looking?</div>
           <Link href="/demo" className="auth-secondary">
-            Explore the sample workspace <ArrowUpRight size={16} />
+            Explore sample report <ArrowUpRight size={16} />
           </Link>
           <div className="auth-disclosure">
             <ShieldCheck size={15} />
             <span>
-              This preview uses ChatGPT sign-in. Live marketing connections are
-              not enabled yet. No payment details or ad account access required.
+              Live marketing connections are still being built. Signing in saves
+              your early-access details; it does not create a report from your
+              business data. No payment details needed.
             </span>
           </div>
           <div className="auth-link-row">

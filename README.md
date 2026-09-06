@@ -7,7 +7,7 @@ An early marketing-intelligence product preview. Working name; brand clearance h
 - `/`: product website and early-access entry point.
 - `/demo`: interactive fictional business brief, period comparison, evidence, decisions, and planned connections.
 - `/login`: platform-supported Sign in with ChatGPT.
-- `/workspace`: authenticated pilot profile, saved in D1 with ownership enforced on the server.
+- `/workspace`: authenticated early-access details, saved in D1 with ownership enforced on the server; confirmation, edit, cancel, and deletion flows.
 - `/privacy`: preview-specific data handling explanation.
 - `/api/workspace`: authenticated read, save, and deletion of the current user's profile.
 
@@ -17,7 +17,7 @@ Profile persistence, input validation, contact preference, per-account ownership
 
 ## What is a demonstration
 
-All June Paper Co. metrics and recommendations are fictional. Reviewing a demo decision only changes state for the current visit. No ads, budgets, emails, payments, external marketing accounts, or real customer records are accessed. The planned-connection cards do not run OAuth. Source matching illustrates a stated last-click rule; it is not an implemented attribution pipeline and does not establish causality.
+All June Paper Co. metrics and recommendations are fictional. The three-step sample checklist saves only checked steps and review completion in this browser, independently of account identity. When browser storage is unavailable, progress lasts until leaving or reloading the page. The review page has a reset action. No ads, budgets, emails, payments, external marketing accounts, or real customer records are accessed. The planned-connection cards do not run OAuth. Source matching illustrates a stated last-click rule; it is not an implemented attribution pipeline and does not establish causality.
 
 ## Local development
 
@@ -27,7 +27,7 @@ Use the locked package versions. Run `pnpm install`, `pnpm dev`, and use the pla
 
 Validation: `pnpm lint`, `pnpm exec tsc --noEmit`, `pnpm build`. With the local server and migration applied, `node tests/api-smoke.mjs` exercises synthetic account persistence and authentication/error boundaries. It refuses to overwrite an existing local profile and removes its fixture.
 
-The demo feature-detects WebMCP and exposes a read-only fictional report tool. A supported browser contract check is not yet recorded; WebMCP is not required for the product to operate.
+The demo feature-detects WebMCP and exposes a read-only fictional report tool. WebMCP is not required for the product to operate. Customer journey checks cover the sample review, evidence and date controls, browser-local progress, mobile menu, and synthetic-account create/edit/cancel/reload/delete flows. Hosted entry navigation is verified after publication.
 
 ## Before an external pilot
 

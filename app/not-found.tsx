@@ -4,14 +4,14 @@ import { Brand } from './landing';
 
 export default function NotFound() {
   return (
-    <main className="privacy-page">
+    <main className="privacy-page" id="main-content" tabIndex={-1}>
       <Brand />
-      <h1>Let’s bring things back into focus.</h1>
+      <h1>We couldn’t find that page.</h1>
       <p>
-        We couldn’t find that page. Your Daymark brief is a good place to start.
+        The address may have changed. You can return to the sample report below.
       </p>
       <Link className="text-link" href="/demo">
-        Explore the sample workspace <ArrowRight size={16} />
+        Explore sample report <ArrowRight size={16} />
       </Link>
     </main>
   );

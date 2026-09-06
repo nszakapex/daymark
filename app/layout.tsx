@@ -4,6 +4,7 @@ import './globals.css';
 import './daymark.css';
 import './product-polish.css';
 import './product-responsive.css';
+import './customer-experience.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,6 +33,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <a className="skip-link" href="#main-content">
+          Skip to main content
+        </a>
         {children}
       </body>
     </html>
