@@ -42,7 +42,15 @@ export default function PrivacyPage() {
         your progress. If browser storage is unavailable, progress lasts only
         for that visit.
       </p>
-      <h2>Before real business data</h2>
+      <h2>Your sample offer checks</h2>
+      <p>
+        Sample offer checks retain fictional check inputs and timestamps in this
+        tab’s browser session so you can return from the sample cart without
+        losing the history. Use “Clear sample history” to remove them. If
+        session storage is unavailable, results last until you leave or reload
+        the page. This sample history is not saved to your account.
+      </p>
+      <h2>Connecting a real business</h2>
       <p>
         Any live pilot will need a clear agreement covering the data sources,
         permissions, retention, and delivery involved. This preview does not

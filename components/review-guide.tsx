@@ -3,6 +3,7 @@
 import { Check, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { periods, demoFinding } from '@/lib/demo-data';
 
 export default function ReviewGuide({
   checks,
@@ -21,14 +22,14 @@ export default function ReviewGuide({
   const steps = [
     {
       title: 'Compare customers, not just clicks.',
-      text: 'Meta spent $960 in each period. The number of new customers linked to its ads fell from 24 to 12. That raised the cost from $40 to $80 per customer. Google stayed at $40.',
+      text: demoFinding.basis,
       label: 'I understand what changed',
       link: 'See the calculation',
       panel: 'evidence' as const,
     },
     {
       title: 'Check the missing information.',
-      text: '12 new customers have no marketing source recorded. In a real review, open your sales records, check their first-purchase dates and source fields, and confirm that recent sales have been included. Do not guess where they came from.',
+      text: `${periods.current.unknownCustomers} new customers have no eligible marketing source. Check their first-purchase dates, available source fields, and late records. Keep unknown sources separate; do not guess.`,
       label: 'I know which records to check',
       link: 'See which customers are included',
       panel: 'coverage' as const,

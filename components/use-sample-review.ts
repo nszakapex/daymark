@@ -6,7 +6,7 @@ import {
   type SampleReview,
 } from '@/lib/sample-review';
 
-const key = 'daymark-sample-review-v1';
+const key = 'daymark-sample-review-june-paper-v2';
 const changeEvent = 'daymark-sample-review-change';
 let visitOnly = JSON.stringify(emptyReview);
 let writeFailed = false;

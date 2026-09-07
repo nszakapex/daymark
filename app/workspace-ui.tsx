@@ -59,13 +59,26 @@ import {
 import { Brand } from './landing';
 import Platform from '@/components/platform-logo';
 import ReviewGuide from '@/components/review-guide';
+import OfferChecks from '@/components/offer-checks';
+import TrendChart from '@/components/trend-chart';
+import SalesActivity from '@/components/sales-activity';
 import { useSampleReview } from '@/components/use-sample-review';
-import { reportFor, demoFinding, type Period } from '@/lib/demo-data';
+import {
+  reportFor,
+  periods,
+  sampleBusiness,
+  money,
+  change,
+  demoFinding,
+  type Period,
+} from '@/lib/demo-data';
 
 const sections = [
+  { id: 'offers', label: 'Check your offers', icon: ShieldCheck },
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'channels', label: 'Compare ads', icon: ChartNoAxesCombined },
   { id: 'decisions', label: 'Your review', icon: CheckCheck },
+  { id: 'sales', label: 'Sales activity', icon: ChartNoAxesCombined },
   { id: 'connections', label: 'Data sources', icon: Plug },
 ] as const;
 type Section = (typeof sections)[number]['id'];
@@ -100,7 +113,7 @@ export default function Workspace() {
   const mainHeadingRef = useRef<HTMLHeadingElement>(null);
   const sheetHeadingRef = useRef<HTMLHeadingElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
-  const [section, setSection] = useState<Section>('overview');
+  const [section, setSection] = useState<Section>('offers');
   const [period, setPeriod] = useState<Period>('current');
   const [panel, setPanel] = useState<
     'evidence' | 'coverage' | 'connection' | 'help' | 'review' | null
@@ -126,6 +139,7 @@ export default function Workspace() {
   }
   const [connection, setConnection] = useState('Meta');
   const report = reportFor(period);
+  const baseline = periods.previous;
   useEffect(() => {
     const context = (document as Document & { modelContext?: Context })
       .modelContext;
@@ -249,25 +263,35 @@ export default function Workspace() {
             <div>
               <span className="eyebrow">June Paper Co. · Sample business</span>
               <h1 ref={mainHeadingRef} tabIndex={-1}>
-                {section === 'overview'
-                  ? 'Your marketing, explained.'
-                  : section === 'channels'
-                    ? 'Compare your advertising.'
-                    : section === 'decisions'
-                      ? 'Your review checklist.'
-                      : 'Where the numbers come from.'}
+                {section === 'offers'
+                  ? 'Your offers, checked.'
+                  : section === 'overview'
+                    ? 'Your marketing, explained.'
+                    : section === 'channels'
+                      ? 'Compare your advertising.'
+                      : section === 'decisions'
+                        ? 'Your review checklist.'
+                        : section === 'sales'
+                          ? 'Your sales, accounted for.'
+                          : 'Where the numbers come from.'}
               </h1>
               <p>
-                {section === 'overview'
-                  ? 'See what changed, why it matters, and what to check next.'
-                  : section === 'channels'
-                    ? 'Compare what you spent with the new customers linked to each ad platform.'
-                    : section === 'decisions'
-                      ? 'A short checklist to help you decide what to do about Meta.'
-                      : 'See what is included in this sample and which connections are still being built.'}
+                {section === 'offers'
+                  ? 'Make sure the promise in your marketing reaches the customer’s cart.'
+                  : section === 'overview'
+                    ? 'See what changed, why it matters, and what to check next.'
+                    : section === 'channels'
+                      ? 'Compare what you spent with the new customers linked to each ad platform.'
+                      : section === 'decisions'
+                        ? 'A short checklist to help you decide what to do about Meta.'
+                        : section === 'sales'
+                          ? 'Open an order to see its source, discounts, and refunds.'
+                          : 'See what is included in this sample and which connections are still being built.'}
               </p>
             </div>
-            {(section === 'overview' || section === 'channels') && (
+            {(section === 'overview' ||
+              section === 'channels' ||
+              section === 'sales') && (
               <Select
                 value={period}
                 onValueChange={(value) => {
@@ -289,6 +313,12 @@ export default function Workspace() {
               </Select>
             )}
           </div>
+          <div hidden={section !== 'offers'}>
+            <OfferChecks />
+          </div>
+          {section === 'sales' && (
+            <SalesActivity key={period} report={report} />
+          )}
           {(section === 'overview' || section === 'channels') && (
             <div className="signal-bubbles" aria-label="Report shortcuts">
               <button
@@ -370,14 +400,15 @@ export default function Workspace() {
                         ) : (
                           <>
                             Your earlier results. <br />
-                            Both platforms at $40.
+                            Both platforms within target.
                           </>
                         )}
                       </h2>
                       <p>
                         {period === 'current'
-                          ? 'Meta’s ad cost per new customer rose from $40 to $80. Google stayed at $40. Check the missing customer information before spending more.'
-                          : 'Google and Meta each spent $40 per new customer linked to their ads. That is below this sample business’s $60 target.'}
+                          ? demoFinding.finding +
+                            ' Check the missing sources before changing your budget.'
+                          : `Google cost ${money(report.googleCost)} and Meta cost ${money(report.metaCost)} per linked first-time customer. Both are below this shop’s ${money(sampleBusiness.target, 0)} target.`}
                       </p>
                       {period === 'current' && (
                         <Button
@@ -418,7 +449,7 @@ export default function Workspace() {
                       </h3>
                       <p>
                         {period === 'current'
-                          ? 'Start with the 12 new customers who have no marketing source recorded. The checklist explains what to look for.'
+                          ? `Start with the ${report.unknownCustomers} new customers who have no eligible source. The checklist explains what to look for.`
                           : 'Compare the same number of days and count customers in the same way. Use the date menu to return to the latest sample.'}
                       </p>
                       <div className="recommendation-bottom">
@@ -460,11 +491,19 @@ export default function Workspace() {
                     </span>
                   </span>
                   <div>
-                    <strong>$2,400</strong>
+                    <strong>{money(report.spend)}</strong>
                   </div>
                   <p>
-                    <span className="neutral-pill">— Same spend</span>
-                    <span>across both periods</span>
+                    <span className="neutral-pill">
+                      {period === 'current'
+                        ? change(report.spend, baseline.spend)
+                        : 'Earlier period'}
+                    </span>
+                    <span>
+                      {period === 'current'
+                        ? 'versus earlier dates'
+                        : '28 completed days'}
+                    </span>
                   </p>
                 </article>
                 <article className="metric-card">
@@ -480,11 +519,18 @@ export default function Workspace() {
                   <p>
                     {period === 'current' ? (
                       <>
-                        <span className="change-pill">↘ 20%</span>
-                        <span>60 in the earlier period</span>
+                        <span className="change-pill">
+                          {change(report.paidCustomers, baseline.paidCustomers)}
+                        </span>
+                        <span>
+                          {baseline.paidCustomers} in the earlier period
+                        </span>
                       </>
                     ) : (
-                      <span>60 first-time customers linked to ads</span>
+                      <span>
+                        {report.paidCustomers} first-time customers linked to
+                        ads
+                      </span>
                     )}
                   </p>
                 </article>
@@ -496,13 +542,17 @@ export default function Workspace() {
                     </span>
                   </span>
                   <div>
-                    <strong>${report.cost}</strong>
+                    <strong>{money(report.cost)}</strong>
                   </div>
                   <p>
                     {period === 'current' ? (
                       <>
-                        <span className="change-pill">↗ 25%</span>
-                        <span>$40 in the previous period</span>
+                        <span className="change-pill">
+                          {change(report.cost ?? 0, baseline.cost ?? 0)}
+                        </span>
+                        <span>
+                          {money(baseline.cost)} in the previous period
+                        </span>
                       </>
                     ) : (
                       <span>Ad spend ÷ customers linked to ads</span>
@@ -532,131 +582,21 @@ export default function Workspace() {
                     <span>
                       <i /> Selected dates
                     </span>
-                    <span>
-                      <i /> Earlier period
-                    </span>
-                  </div>
-                  <svg
-                    className="trend-chart"
-                    viewBox="0 0 650 225"
-                    aria-label={
-                      period === 'current'
-                        ? 'Weekly ad cost per linked customer rose from $42.86 to $60. The earlier period was $40.'
-                        : 'Weekly ad cost per linked customer was $40 throughout the earlier period.'
-                    }
-                  >
-                    <defs>
-                      <linearGradient
-                        id="chartFill"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="0%"
-                          stopColor="#1649e8"
-                          stopOpacity=".12"
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor="#1649e8"
-                          stopOpacity="0"
-                        />
-                      </linearGradient>
-                    </defs>
-                    {[40, 80, 120, 160].map((y, i) => (
-                      <g key={y}>
-                        <line
-                          x1="45"
-                          x2="635"
-                          y1={y}
-                          y2={y}
-                          stroke="#e7ecf3"
-                          strokeDasharray="3 5"
-                        />
-                        <text x="7" y={y + 4} fill="#8491a3" fontSize="12">
-                          ${70 - i * 10}
-                        </text>
-                      </g>
-                    ))}
-                    <line
-                      x1="52"
-                      y1="160"
-                      x2="626"
-                      y2="160"
-                      stroke="#a9b6cc"
-                      strokeWidth="2"
-                      strokeDasharray="5 5"
-                    />
-                    {period === 'current' ? (
-                      <>
-                        <path
-                          d="M52 149 L243 135 L434 102 L626 80 L626 190 L52 190 Z"
-                          fill="url(#chartFill)"
-                        />
-                        <path
-                          d="M52 149 L243 135 L434 102 L626 80"
-                          fill="none"
-                          stroke="#1649e8"
-                          strokeWidth="3"
-                          strokeLinejoin="round"
-                        />
-                        {[
-                          [52, 149],
-                          [243, 135],
-                          [434, 102],
-                          [626, 80],
-                        ].map(([x, y], i) => (
-                          <g key={x}>
-                            <circle
-                              cx={x}
-                              cy={y}
-                              r="5"
-                              fill="white"
-                              stroke="#1649e8"
-                              strokeWidth="2"
-                            />
-                            <text
-                              x={x}
-                              y={y - 13}
-                              textAnchor="middle"
-                              fontSize="12"
-                              fill="#1649e8"
-                            >
-                              ${(600 / report.weeklyCustomers[i]).toFixed(2)}
-                            </text>
-                          </g>
-                        ))}
-                      </>
-                    ) : (
-                      <path
-                        d="M52 160 L626 160"
-                        stroke="#1649e8"
-                        strokeWidth="3"
-                      />
+                    {period === 'current' && (
+                      <span>
+                        <i /> Earlier period
+                      </span>
                     )}
-                    {['Week 1', 'Week 2', 'Week 3', 'Week 4'].map((s, i) => (
-                      <text
-                        key={s}
-                        x={52 + i * 191}
-                        y="217"
-                        textAnchor="middle"
-                        fill="#8491a3"
-                        fontSize="12"
-                      >
-                        {s}
-                      </text>
-                    ))}
-                  </svg>
+                  </div>
+                  <TrendChart
+                    report={report}
+                    baseline={period === 'current' ? baseline : null}
+                  />
                   <dl className="weekly-values">
-                    {report.weeklyCustomers.map((customers, index) => (
+                    {report.weeks.map((week, index) => (
                       <div key={index}>
                         <dt>Week {index + 1}</dt>
-                        <dd>
-                          {'$'}
-                          {(600 / customers).toFixed(2)}
-                        </dd>
+                        <dd>{money(week.cost)}</dd>
                       </div>
                     ))}
                   </dl>
@@ -693,7 +633,7 @@ export default function Workspace() {
                         />
                       </svg>
                       <strong>
-                        {report.coverage}
+                        {report.coverage.toFixed(1)}
                         <span>%</span>
                       </strong>
                     </div>
@@ -750,22 +690,7 @@ export default function Workspace() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {[
-                      {
-                        name: 'Google',
-                        label: 'Google Ads',
-                        spend: 1440,
-                        customers: report.googleCustomers,
-                        cost: report.googleCost,
-                      },
-                      {
-                        name: 'Meta',
-                        label: 'Meta Ads',
-                        spend: 960,
-                        customers: report.metaCustomers,
-                        cost: report.metaCost,
-                      },
-                    ].map((c) => (
+                    {report.channels.map((c) => (
                       <TableRow key={c.name}>
                         <TableCell>
                           <span className="channel-name">
@@ -773,18 +698,20 @@ export default function Workspace() {
                             <strong>{c.label}</strong>
                           </span>
                         </TableCell>
-                        <TableCell>
-                          ${c.spend.toLocaleString('en-US')}
-                        </TableCell>
+                        <TableCell>{money(c.spend)}</TableCell>
                         <TableCell>{c.customers}</TableCell>
-                        <TableCell>${c.cost}</TableCell>
+                        <TableCell>{money(c.cost)}</TableCell>
                         <TableCell>
                           <span
                             className={
-                              c.cost > 60 ? 'status-review' : 'status-healthy'
+                              (c.cost ?? 0) > sampleBusiness.target
+                                ? 'status-review'
+                                : 'status-healthy'
                             }
                           >
-                            {c.cost > 60 ? 'Review suggested' : 'Within target'}
+                            {(c.cost ?? 0) > sampleBusiness.target
+                              ? 'Review suggested'
+                              : 'Within target'}
                           </span>
                         </TableCell>
                       </TableRow>
@@ -792,22 +719,7 @@ export default function Workspace() {
                   </TableBody>
                 </Table>
                 <div className="mobile-ad-comparison">
-                  {[
-                    {
-                      name: 'Google',
-                      label: 'Google Ads',
-                      spend: 1440,
-                      customers: report.googleCustomers,
-                      cost: report.googleCost,
-                    },
-                    {
-                      name: 'Meta',
-                      label: 'Meta Ads',
-                      spend: 960,
-                      customers: report.metaCustomers,
-                      cost: report.metaCost,
-                    },
-                  ].map((channel) => (
+                  {report.channels.map((channel) => (
                     <article key={channel.name}>
                       <h3>
                         <Platform name={channel.name} />
@@ -816,10 +728,7 @@ export default function Workspace() {
                       <dl>
                         <div>
                           <dt>Ad spend</dt>
-                          <dd>
-                            {'$'}
-                            {channel.spend.toLocaleString('en-US')}
-                          </dd>
+                          <dd>{money(channel.spend)}</dd>
                         </div>
                         <div>
                           <dt>New customers linked</dt>
@@ -827,18 +736,17 @@ export default function Workspace() {
                         </div>
                         <div>
                           <dt>Cost per customer</dt>
-                          <dd>
-                            {'$'}
-                            {channel.cost}
-                          </dd>
+                          <dd>{money(channel.cost)}</dd>
                         </div>
                       </dl>
                       <span
                         className={
-                          channel.cost > 60 ? 'status-review' : 'status-healthy'
+                          (channel.cost ?? 0) > sampleBusiness.target
+                            ? 'status-review'
+                            : 'status-healthy'
                         }
                       >
-                        {channel.cost > 60
+                        {(channel.cost ?? 0) > sampleBusiness.target
                           ? 'Above the $60 target'
                           : 'Below the $60 target'}
                       </span>
@@ -852,6 +760,48 @@ export default function Workspace() {
                 </div>
               </section>
             </>
+          )}
+          {section === 'channels' && (
+            <section className="campaign-detail-grid">
+              {report.campaigns.map((c) => (
+                <article className="campaign-detail-card" key={c.id}>
+                  <Platform name={c.platform} />
+                  <h2>{c.name}</h2>
+                  <p>{c.purpose}</p>
+                  <dl>
+                    <div>
+                      <dt>Spend</dt>
+                      <dd>{money(c.spend)}</dd>
+                    </div>
+                    <div>
+                      <dt>Ad appearances</dt>
+                      <dd>{c.impressions.toLocaleString('en-US')}</dd>
+                    </div>
+                    <div>
+                      <dt>Clicks</dt>
+                      <dd>{c.clicks.toLocaleString('en-US')}</dd>
+                    </div>
+                    <div>
+                      <dt>Clicks per 100 appearances</dt>
+                      <dd>{c.ctr?.toFixed(2) ?? '—'}</dd>
+                    </div>
+                    <div>
+                      <dt>New customers linked</dt>
+                      <dd>{c.customers}</dd>
+                    </div>
+                    <div>
+                      <dt>Cost per customer</dt>
+                      <dd>{money(c.cost)}</dd>
+                    </div>
+                  </dl>
+                  <span className="offer-status">
+                    {c.customers < 20
+                      ? 'Small sample · interpret cautiously'
+                      : 'Compare alongside your sales'}
+                  </span>
+                </article>
+              ))}
+            </section>
           )}
           {section === 'decisions' && (
             <section className="decisions-section">
@@ -925,17 +875,17 @@ export default function Workspace() {
                 {[
                   {
                     name: 'Meta',
-                    desc: 'Sample ad spending and new customers linked to Meta ads.',
+                    desc: `${report.adRows / 2} daily campaign records per period, with spend, impressions, clicks, and linked customers.`,
                     role: 'Sample advertising records',
                   },
                   {
                     name: 'Google',
-                    desc: 'Sample ad spending and new customers linked to Google Ads.',
+                    desc: `${report.adRows / 2} daily campaign records per period, covering brand and planner searches.`,
                     role: 'Sample advertising records',
                   },
                   {
                     name: 'Sales',
-                    desc: 'First-time customers and the marketing source recorded with their purchase.',
+                    desc: 'Fictional orders, purchase history, discounts, refunds, and canceled payments. Open Sales activity to inspect them.',
                     role: 'Sample sales records',
                   },
                   {
@@ -1004,7 +954,7 @@ export default function Workspace() {
             <span>
               <span className="status-dot" /> All amounts in US dollars.
             </span>
-            <span>Sample snapshot · Sep 4, 2026</span>
+            <span>Synthetic records · {sampleBusiness.snapshotLabel}</span>
           </footer>
         </div>
       </SidebarInset>
@@ -1082,8 +1032,8 @@ export default function Workspace() {
                 <span className="label-pill">{report.label}</span>
                 <h3>The calculation</h3>
                 <div className="calculation">
-                  $2,400 <span>÷</span> {report.paidCustomers} <span>=</span>{' '}
-                  <strong>${report.cost}</strong>
+                  {money(report.spend)} <span>÷</span> {report.paidCustomers}{' '}
+                  <span>=</span> <strong>{money(report.cost)}</strong>
                 </div>
                 <p>
                   We divide ad spending by first-time customers whose purchase
@@ -1092,21 +1042,24 @@ export default function Workspace() {
                 <div className="evidence-row">
                   <span>Google Ads</span>
                   <strong>
-                    $1,440 ÷ {report.googleCustomers} = ${report.googleCost}
+                    {money(report.googleSpend)} ÷ {report.googleCustomers} ={' '}
+                    {money(report.googleCost)}
                   </strong>
                 </div>
                 <div className="evidence-row">
                   <span>Meta Ads</span>
                   <strong>
-                    $960 ÷ {report.metaCustomers} = ${report.metaCost}
+                    {money(report.metaSpend)} ÷ {report.metaCustomers} ={' '}
+                    {money(report.metaCost)}
                   </strong>
                 </div>
                 <h3>What “linked to ads” means</h3>
                 <p>
-                  In this sample, a customer is linked to the last recorded ad
-                  they clicked within 28 days before their first purchase. Each
-                  customer counts once. Both reporting periods contain 28 full
-                  days.
+                  In this sample, a customer is linked to their last recorded
+                  marketing interaction within 28 days before their first
+                  purchase. Only a Meta or Google ad interaction counts as
+                  linked to ads. Each customer counts once. Both reporting
+                  periods contain 28 full days.
                 </p>
                 <h3>What the numbers show</h3>
                 <p>
@@ -1114,11 +1067,28 @@ export default function Workspace() {
                     ? demoFinding.basis
                     : 'Both platforms were below the sample business’s $60 cost-per-customer target. This is the earliest period in the sample.'}
                 </p>
+                {period === 'current' && (
+                  <div className="confidence-check">
+                    <h3>Could missing records change the decision?</h3>
+                    <p>
+                      If all {report.unknownCustomers} unknown sources turned
+                      out to be Meta, its cost would be{' '}
+                      {money(demoFinding.bestCaseMetaCost)} per customer. At
+                      least {demoFinding.extraCustomersToTarget} additional
+                      customers would need to be linked to Meta to meet the $60
+                      target.
+                    </p>
+                    <strong>
+                      This is a possible range, not an estimate of where those
+                      customers came from.
+                    </strong>
+                  </div>
+                )}
                 <h3>What still needs checking</h3>
                 <p>
                   {period === 'current'
                     ? demoFinding.limits
-                    : '10 customers have no source recorded. These records cannot tell us whether an ad caused a purchase or whether the business made a profit.'}
+                    : `${report.unknownCustomers} customers have no eligible source. These records do not prove an ad caused a purchase or show whether the business made a profit.`}
                 </p>
                 <div className="sheet-callout">
                   <Info size={18} />
@@ -1132,7 +1102,7 @@ export default function Workspace() {
             ) : panel === 'coverage' ? (
               <>
                 <div className="coverage-value">
-                  <strong>{report.coverage}%</strong>
+                  <strong>{report.coverage.toFixed(1)}%</strong>
                 </div>
                 <p>
                   This is the share of new customers with a recorded marketing

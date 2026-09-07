@@ -1,5 +1,6 @@
 import Link from '@/components/site-link';
 import Platform from '@/components/platform-logo';
+import { periods, money, change } from '@/lib/demo-data';
 import {
   ArrowUpRight,
   ArrowRight,
@@ -41,23 +42,23 @@ export default function Landing() {
               <span className="status-dot" /> A clearer view of your marketing
             </span>
             <h1>
-              Know your next move.
+              Know what needs attention.
               <br />
-              <span>Before you spend more.</span>
+              <span>Before the next click.</span>
             </h1>
             <p>
-              See what you spent on ads, how many new customers were linked to
-              them, and what to check before you spend more.
+              Check your advertised offers, understand your marketing results,
+              and see the evidence behind your next move.
             </p>
             <div className="hero-actions">
               <Link href="/demo" className="button-primary">
-                Explore sample report <ArrowUpRight size={19} />
+                Explore the sample workspace <ArrowUpRight size={19} />
               </Link>
               <span>No account or setup needed.</span>
             </div>
             <div className="hero-footnote">
-              <Check size={15} /> Try the review checklist with a sample
-              business.
+              <Check size={15} /> Test an offer. Review the numbers. Follow the
+              evidence.
             </div>
           </div>
           <div className="hero-product">
@@ -76,18 +77,23 @@ export default function Landing() {
               </h2>
               <div className="preview-stats">
                 <div>
-                  <span>Marketing spend</span>
+                  <span>Ad spend</span>
                   <strong>
-                    $2,400<span> →</span>
+                    {money(periods.current.spend, 0)}
+                    <span> →</span>
                   </strong>
-                  <small>Unchanged from last period</small>
+                  <small>
+                    {change(periods.current.spend, periods.previous.spend)} from
+                    earlier dates
+                  </small>
                 </div>
                 <div>
                   <span>Ad cost per customer</span>
                   <strong>
-                    $50<span className="orange"> ↗</span>
+                    {money(periods.current.cost)}
+                    <span className="orange"> ↗</span>
                   </strong>
-                  <small>Up 25% from $40</small>
+                  <small>Previously {money(periods.previous.cost)}</small>
                 </div>
               </div>
               <div className="preview-insight">
@@ -99,16 +105,16 @@ export default function Landing() {
                     One thing worth your attention
                   </span>
                   <h3>
-                    Take a closer look at Meta
+                    Does your advertised offer
                     <br />
-                    before increasing your budget.
+                    work in the customer’s cart?
                   </h3>
                   <p>
-                    Your spending held steady. Fewer new paying customers could
-                    be linked to Meta.
+                    Try a sample promotion, inspect a failed discount, and check
+                    the corrected setup.
                   </p>
                   <Link href="/demo">
-                    Open this sample report <ArrowRight size={16} />
+                    Try the offer check <ArrowRight size={16} />
                   </Link>
                 </div>
               </div>
@@ -142,31 +148,31 @@ export default function Landing() {
         <section className="how-section" id="how-it-works">
           <div>
             <span className="eyebrow">How to use the sample</span>
-            <h2>Three steps to a clearer decision.</h2>
+            <h2>From the promise to the purchase.</h2>
           </div>
           <div className="steps">
             <article>
               <span>01</span>
-              <h3>See what changed.</h3>
+              <h3>Check the offer.</h3>
               <p>
-                Compare ad spending with new customers over two complete
-                periods. See the change that deserves attention.
+                Run a sample check of a discount or free gift. See the basket
+                and conditions behind the result.
               </p>
             </article>
             <article>
               <span>02</span>
-              <h3>Understand the numbers.</h3>
+              <h3>Understand performance.</h3>
               <p>
-                Open the calculation. See which customers are included and what
-                information is missing.
+                Compare ad spend with first-time customers. Open the sales
+                records and keep missing information visible.
               </p>
             </article>
             <article>
               <span>03</span>
-              <h3>Work through the next step.</h3>
+              <h3>Verify the next step.</h3>
               <p>
-                Follow a short checklist, save your sample review, and leave
-                knowing what you would check in your business.
+                Try a corrected offer and run a new check. Use the report’s
+                review checklist before making a budget decision.
               </p>
             </article>
           </div>

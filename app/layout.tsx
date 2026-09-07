@@ -5,6 +5,7 @@ import './daymark.css';
 import './product-polish.css';
 import './product-responsive.css';
 import './customer-experience.css';
+import './campaign-checks.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   title: 'Daymark — Know your next move',
   icons: { icon: '/favicon.svg' },
   description:
-    'Understand your marketing, see the evidence, and find your next useful action. Explore the Daymark product preview.',
+    'Check what your marketing promises, understand campaign performance, and see the evidence for your next move. Explore the Daymark sample workspace.',
 };
 
 export default function RootLayout({
