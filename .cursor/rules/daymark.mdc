@@ -1,0 +1,6 @@
+---
+description: Daymark product boundaries and development workflow
+alwaysApply: true
+---
+
+Follow AGENTS.md at the repository root. Read docs/CURSOR_START.md for the working/simulated capability map, local checks and first real-store milestone. Keep the existing Daymark UI. Verify changes with the repository scripts and distinguish implemented behavior from plans.

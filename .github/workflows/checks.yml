@@ -1,0 +1,43 @@
+name: Daymark checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+      - name: Enable the pinned package manager
+        run: corepack enable pnpm
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Check types, lint, tests and build
+        run: pnpm check
+      - name: Prepare the local profile database
+        run: pnpm db:local
+      - name: Verify local API and profile flows
+        shell: bash
+        run: |
+          pnpm dev > "$RUNNER_TEMP/daymark-dev.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=false
+          for attempt in {1..45}; do
+            if curl --fail --silent http://localhost:3000/demo > /dev/null; then
+              ready=true
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" != true ]; then
+            cat "$RUNNER_TEMP/daymark-dev.log"
+            exit 1
+          fi
+          pnpm test:api
+          pnpm test:profile

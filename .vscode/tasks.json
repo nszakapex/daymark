@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Daymark: Start local app",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["dev"],
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "Daymark: Prepare local database",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["db:local"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Daymark: Check everything",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["check"],
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Daymark: Test running sample",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["test:api"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Daymark: Test local profile storage",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["test:profile"],
+      "problemMatcher": []
+    }
+  ]
+}

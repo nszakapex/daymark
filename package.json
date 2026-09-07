@@ -2,6 +2,7 @@
   "name": "sites-project",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@12.3.4",
   "engines": {
     "node": ">=22.13.0"
   },
@@ -11,7 +12,13 @@
     "start": "wrangler dev --config dist/server/wrangler.json",
     "lint": "oxlint",
     "format": "oxfmt",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "db:local": "wrangler d1 migrations apply DB --local --config wrangler.local.jsonc --persist-to .wrangler/state",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/data.test.mjs tests/offer-checks.test.mjs",
+    "test:api": "node tests/campaign-api-smoke.mjs",
+    "test:profile": "node tests/api-smoke.mjs",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
   },
   "dependencies": {
     "react": "19.2.6",

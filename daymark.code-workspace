@@ -1,0 +1,8 @@
+{
+  "folders": [{ "path": "." }],
+  "settings": {
+    "npm.packageManager": "pnpm",
+    "files.exclude": { "**/.wrangler": true, "**/dist": true },
+    "search.exclude": { "**/node_modules": true, "**/.wrangler": true, "**/dist": true }
+  }
+}

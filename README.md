@@ -2,6 +2,22 @@
 
 An early marketing-intelligence product preview. Working name; brand clearance has not been assessed.
 
+## Open and develop
+
+See [Continue in Cursor](docs/CURSOR_START.md) for the prepared local checkout, a reusable agent prompt, capability boundaries and the first real-store milestone. Open `daymark.code-workspace` in Cursor. The pinned stack is Vinext, React, TypeScript and Cloudflare Workers/D1.
+
+Use Node 24 LTS and the package manager pinned in package.json:
+
+```bash
+nvm use
+corepack enable pnpm
+pnpm install --frozen-lockfile
+pnpm db:local
+pnpm dev
+```
+
+The sample opens at the server's printed URL, normally `http://localhost:3000/demo`. It does not require advertising credentials. In another terminal, run `pnpm check`, `pnpm test:api` and `pnpm test:profile`. Cursor tasks expose the same commands; GitHub Actions runs these checks on pushes and pull requests. A GitHub push does not publish the hosted Site.
+
 ## Routes
 
 - `/`: product website and early-access entry point.
