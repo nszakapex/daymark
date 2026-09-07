@@ -153,7 +153,7 @@ export default function Landing() {
           <div className="steps">
             <article>
               <span>01</span>
-              <h3>Check the offer.</h3>
+              <h3>Check the offer</h3>
               <p>
                 Run a sample check of a discount or free gift. See the basket
                 and conditions behind the result.
@@ -161,7 +161,7 @@ export default function Landing() {
             </article>
             <article>
               <span>02</span>
-              <h3>Understand performance.</h3>
+              <h3>Understand performance</h3>
               <p>
                 Compare ad spend with first-time customers. Open the sales
                 records and keep missing information visible.
@@ -169,7 +169,7 @@ export default function Landing() {
             </article>
             <article>
               <span>03</span>
-              <h3>Verify the next step.</h3>
+              <h3>Verify the next step</h3>
               <p>
                 Try a corrected offer and run a new check. Use the report’s
                 review checklist before making a budget decision.

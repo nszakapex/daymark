@@ -215,6 +215,10 @@
   .access-section h2 {
     font-size: 2rem;
   }
+  .how-section {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
 }
 @media (max-width: 767px) {
   .app-topbar {
@@ -613,26 +617,26 @@
     letter-spacing: -1.1px;
   }
   .steps {
-    grid-template-columns: 1fr;
-    gap: 17px;
-    margin-top: 30px;
+    margin-top: 0;
   }
   .steps article {
-    padding: 25px;
+    grid-template-columns: 28px minmax(0, 1fr);
+    column-gap: 14px;
+    padding: 24px 0;
   }
   .steps h3 {
-    margin-top: 18px;
+    margin-top: 0;
   }
   .steps p {
-    font-size: 0.9375rem;
+    font-size: 1rem;
   }
   .access-section {
-    margin: 0 20px 30px;
-    padding: 29px;
-    border-radius: 23px;
+    margin: 0 25px 44px;
+    padding: 32px 0 0;
+    border-radius: 0;
   }
   .access-section .button-primary {
-    width: 100%;
+    width: auto;
   }
   .site-footer {
     padding: 25px;
