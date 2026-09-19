@@ -23,7 +23,14 @@ const save = (body, headers = {}) =>
     body: JSON.stringify(body),
   });
 
-for (const path of ['/', '/demo', '/login', '/privacy']) {
+for (const path of [
+  '/',
+  '/demo',
+  '/login',
+  '/privacy',
+  '/operator',
+  '/pricing',
+]) {
   const result = await call(path);
   assert.equal(result.status, 200, path);
   assert.match(result.headers.get('content-type'), /text\/html/);

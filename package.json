@@ -15,7 +15,8 @@
     "db:generate": "drizzle-kit generate",
     "db:local": "wrangler d1 migrations apply DB --local --config wrangler.local.jsonc --persist-to .wrangler/state",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/data.test.mjs tests/offer-checks.test.mjs",
+    "test": "node --test tests/data.test.mjs tests/offer-checks.test.mjs tests/operator.test.mjs",
+    "license:issue": "node scripts/issue-license.mjs",
     "test:api": "node tests/campaign-api-smoke.mjs",
     "test:profile": "node tests/api-smoke.mjs",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
