@@ -76,7 +76,7 @@ import {
 } from '@/lib/demo-data';
 
 const sections = [
-  { id: 'operator', label: 'Operator', icon: Workflow },
+  { id: 'operator', label: 'Today’s desk', icon: Workflow },
   { id: 'offers', label: 'Check your offers', icon: ShieldCheck },
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'channels', label: 'Compare ads', icon: ChartNoAxesCombined },
@@ -267,7 +267,7 @@ export default function Workspace() {
               <span className="eyebrow">June Paper Co. · Sample business</span>
               <h1 ref={mainHeadingRef} tabIndex={-1}>
                 {section === 'operator'
-                  ? 'Your Zapier operator.'
+                  ? 'Today’s desk.'
                   : section === 'offers'
                     ? 'Your offers, checked.'
                     : section === 'overview'
@@ -282,7 +282,7 @@ export default function Workspace() {
               </h1>
               <p>
                 {section === 'operator'
-                  ? 'See how Daymark would decide on labeled sample events, then open the live operator for Zapier.'
+                  ? 'A labeled sample of who to email, stop, or leave alone. Open the live desk to work it.'
                   : section === 'offers'
                     ? 'Make sure the promise in your marketing reaches the customer’s cart. This sample path is still fictional.'
                     : section === 'overview'

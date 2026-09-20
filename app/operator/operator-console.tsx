@@ -3,25 +3,38 @@
 import { useState, useSyncExternalStore } from 'react';
 import Link from '@/components/site-link';
 import { ArrowRight, Check, Copy, ShieldCheck } from 'lucide-react';
-import { SAMPLE_INGEST_TOKEN } from '@/lib/operator.ts';
-import { zapRecipes } from '@/lib/zap-recipes.ts';
+import {
+  deskCounts,
+  presentDeskItem,
+  sampleDesk,
+  type DeskBucket,
+  type DeskItem,
+} from '@/lib/desk.ts';
 import { sampleOperatorCases } from '@/lib/operator-sample.ts';
 
-type Decision = {
-  action: string;
+type ApiDecision = {
+  id?: string;
+  action: DeskItem['action'];
+  playbookId?: string | null;
   playbookTitle?: string | null;
   reason: string;
   evidence?: string[];
   nextStep?: string;
   upgradeRequired?: boolean;
-  sample?: boolean;
+  email?: string | null;
+  amountCents?: number | null;
+  outbound?: { productName?: string | null } | null;
   error?: string;
 };
 
 const TOKEN_KEY = 'daymark-operator-token';
 const TOKEN_EVENT = 'daymark-operator-token-change';
+const DONE_KEY = 'daymark-desk-done';
+const DONE_EVENT = 'daymark-desk-done-change';
 let tokenWriteFailed = false;
 let tokenFallback = '';
+let doneFallback = '[]';
+let doneWriteFailed = false;
 
 function subscribeToken(notify: () => void) {
   window.addEventListener(TOKEN_EVENT, notify);
@@ -47,6 +60,42 @@ function writeToken(value: string) {
   window.dispatchEvent(new Event(TOKEN_EVENT));
 }
 
+function subscribeDone(notify: () => void) {
+  window.addEventListener(DONE_EVENT, notify);
+  return () => window.removeEventListener(DONE_EVENT, notify);
+}
+
+function doneSnapshot() {
+  try {
+    if (!doneWriteFailed) return sessionStorage.getItem(DONE_KEY) ?? '[]';
+  } catch {
+    /* Browser may block session storage. */
+  }
+  return doneFallback;
+}
+
+function writeDone(ids: string[]) {
+  const raw = JSON.stringify(ids.slice(0, 80));
+  doneFallback = raw;
+  try {
+    sessionStorage.setItem(DONE_KEY, raw);
+  } catch {
+    doneWriteFailed = true;
+  }
+  window.dispatchEvent(new Event(DONE_EVENT));
+}
+
+function parseDone(raw: string): string[] {
+  try {
+    const rows: unknown = JSON.parse(raw);
+    return Array.isArray(rows)
+      ? rows.filter((row): row is string => typeof row === 'string')
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function OperatorConsole({
   signedIn,
   whopUrl,
@@ -55,35 +104,44 @@ export default function OperatorConsole({
   whopUrl: string | null;
 }) {
   const token = useSyncExternalStore(subscribeToken, tokenSnapshot, () => '');
+  const doneIds = parseDone(
+    useSyncExternalStore(subscribeDone, doneSnapshot, () => '[]'),
+  );
+  const [mine, setMine] = useState<DeskItem[] | null>(null);
+  const [filter, setFilter] = useState<DeskBucket | 'all'>('all');
+  const [selectedId, setSelectedId] = useState(sampleDesk()[0]?.id ?? '');
+  const [setupOpen, setSetupOpen] = useState(false);
   const [license, setLicense] = useState('');
   const [destination, setDestination] = useState('');
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const [decision, setDecision] = useState<Decision | null>(null);
-  const [history, setHistory] = useState<Decision[]>([]);
-  const [caseId, setCaseId] = useState(sampleOperatorCases[0].id);
-  const [customBody, setCustomBody] = useState(
-    JSON.stringify(sampleOperatorCases[0].body, null, 2),
-  );
 
-  function selectCase(id: string) {
-    setCaseId(id);
-    const selected = sampleOperatorCases.find((item) => item.id === id);
-    if (selected) setCustomBody(JSON.stringify(selected.body, null, 2));
+  const items = mine ?? sampleDesk();
+  const usingSample = mine === null;
+  const counts = deskCounts(items);
+  const visible = items.filter(
+    (item) => filter === 'all' || item.bucket === filter,
+  );
+  const selected =
+    visible.find((item) => item.id === selectedId) ?? visible[0] ?? items[0];
+
+  async function readError(response: Response) {
+    try {
+      const body = (await response.json()) as { error?: string };
+      return body.error || 'Daymark could not complete that request.';
+    } catch {
+      return 'Daymark could not complete that request.';
+    }
   }
 
   function ingestUrl() {
     return `${window.location.origin}/api/operator/ingest`;
   }
 
-  async function readError(response: Response) {
-    try {
-      const body = (await response.json()) as { error?: string };
-      return body.error || 'The operator could not complete that request.';
-    } catch {
-      return 'The operator could not complete that request.';
-    }
+  function copy(value: string) {
+    void navigator.clipboard.writeText(value);
+    setNotice('Copied.');
   }
 
   async function startTrial() {
@@ -108,9 +166,10 @@ export default function OperatorConsole({
       if (body.token) writeToken(body.token);
       setNotice(
         body.rotated
-          ? 'A replacement key was issued. Copy it now; Daymark does not show it again.'
-          : 'A 14-day trial key was issued. Copy it now. This is not a paid license.',
+          ? 'A replacement key was issued. Copy it now.'
+          : 'A 14-day trial key was issued. Copy it, then point Stripe or Zapier at the URL in setup.',
       );
+      setSetupOpen(true);
     } catch {
       setError('The trial could not be started.');
     } finally {
@@ -138,8 +197,9 @@ export default function OperatorConsole({
       }
       if (body.token) writeToken(body.token);
       setNotice(
-        'License redeemed. Copy the Daymark key now. It is shown once.',
+        'License redeemed. Copy the workspace key once, then load your desk.',
       );
+      setSetupOpen(true);
     } catch {
       setError('The license could not be redeemed.');
     } finally {
@@ -147,41 +207,98 @@ export default function OperatorConsole({
     }
   }
 
-  async function sendEvent(sample: boolean) {
+  async function loadMine() {
+    if (!token) {
+      setError('Redeem a license or start a trial before loading your desk.');
+      return;
+    }
     setBusy(true);
     setError('');
     setNotice('');
-    let payload: unknown;
     try {
-      payload = JSON.parse(customBody);
+      const response = await fetch('/api/operator/events', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const body = (await response.json()) as {
+        decisions?: ApiDecision[];
+        error?: string;
+      };
+      if (!response.ok) {
+        setError(body.error || (await readError(response)));
+        return;
+      }
+      const next = (body.decisions ?? []).map((row, index) =>
+        presentDeskItem({
+          id: row.id ?? `live-${index}`,
+          email: row.email,
+          amountCents: row.amountCents,
+          productName: row.outbound?.productName ?? null,
+          decision: {
+            action: row.action,
+            playbookId: (row.playbookId ?? null) as never,
+            playbookTitle: row.playbookTitle ?? null,
+            reason: row.reason,
+            evidence: row.evidence ?? [],
+            nextStep: row.nextStep ?? '',
+            upgradeRequired: row.upgradeRequired === true,
+            fingerprint: '',
+            outbound: row.outbound ?? null,
+            zapFilter: {
+              action: row.action,
+              continue: row.action === 'fire' || row.action === 'escalate',
+              path: 'none',
+            },
+          },
+          sample: false,
+        }),
+      );
+      setMine(next);
+      if (next[0]) setSelectedId(next[0].id);
+      setNotice(
+        next.length
+          ? 'This is your desk, not the sample.'
+          : 'Your workspace is empty. Point Stripe or Zapier at the setup URL, or drop a sample person below.',
+      );
     } catch {
+      setError('Your desk could not be loaded.');
+    } finally {
       setBusy(false);
-      setError('The event body must be valid JSON.');
+    }
+  }
+
+  async function dropSamplePerson() {
+    if (!token) {
+      setSelectedId('sample-charge-failed-1');
+      setFilter('do');
+      setNotice(
+        'Sam is on the sample desk. Copy the next step. He is not a real buyer.',
+      );
       return;
     }
+    setBusy(true);
+    setError('');
     try {
       const response = await fetch('/api/operator/ingest', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${sample ? SAMPLE_INGEST_TOKEN : token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(sampleOperatorCases[0].body),
       });
-      const body = (await response.json()) as Decision;
+      const body = (await response.json()) as ApiDecision;
       if (!response.ok) {
-        setError(body.error || 'The event was not accepted.');
+        setError(body.error || 'Sam could not be added to your desk.');
         return;
       }
-      setDecision(body);
-      setHistory((current) => [body, ...current].slice(0, 8));
+      await loadMine();
       setNotice(
-        sample
-          ? 'Sample decision only. Nothing was stored.'
-          : 'Decision recorded for this workspace.',
+        body.action === 'suppress'
+          ? 'Sam was already on your desk this hour. Daymark will not ask you to email him twice.'
+          : 'Sam is a labeled sample person on your workspace, not a live customer.',
       );
     } catch {
-      setError('The event could not be sent.');
+      setError('Sam could not be added to your desk.');
     } finally {
       setBusy(false);
     }
@@ -190,7 +307,6 @@ export default function OperatorConsole({
   async function addDestination() {
     setBusy(true);
     setError('');
-    setNotice('');
     try {
       const response = await fetch('/api/operator/destinations', {
         method: 'POST',
@@ -198,7 +314,7 @@ export default function OperatorConsole({
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ url: destination, label: 'Zapier catch hook' }),
+        body: JSON.stringify({ url: destination, label: 'Follow-up webhook' }),
       });
       const body = (await response.json()) as { error?: string };
       if (!response.ok) {
@@ -207,7 +323,7 @@ export default function OperatorConsole({
       }
       setDestination('');
       setNotice(
-        'Destination saved. Daymark will POST fire and escalate decisions there.',
+        'Saved. Daymark will notify that URL when someone needs a message or a person.',
       );
     } catch {
       setError('The destination could not be saved.');
@@ -216,239 +332,254 @@ export default function OperatorConsole({
     }
   }
 
-  function copy(value: string) {
-    void navigator.clipboard.writeText(value);
-    setNotice('Copied.');
-  }
-
   return (
-    <div className="operator-grid">
-      <section className="operator-card">
-        <h2>1. Your ingest URL</h2>
-        <p>
-          In Zapier, use Webhooks by Zapier → POST. Header{' '}
-          <code>Authorization: Bearer YOUR_KEY</code>. For a setup test, the key{' '}
-          <code>{SAMPLE_INGEST_TOKEN}</code> returns a decision and stores
-          nothing. Copy URL uses this host.
-        </p>
-        <div className="operator-field">
-          <label htmlFor="ingest-url">POST URL</label>
-          <div className="operator-key" id="ingest-url">
-            /api/operator/ingest
-          </div>
-        </div>
-        <div className="operator-actions">
+    <div className="desk">
+      <div className="desk-counts" aria-label="Desk counts">
+        {(
+          [
+            ['all', items.length, 'Everyone'],
+            ['do', counts.do, 'Do now'],
+            ['wait', counts.wait, 'Wait'],
+            ['skip', counts.skip, 'Leave alone'],
+            ['fix', counts.fix, 'Fix record'],
+          ] as const
+        ).map(([key, count, label]) => (
           <button
-            className="button-secondary"
+            key={key}
             type="button"
-            onClick={() => copy(ingestUrl())}
+            className={filter === key ? 'desk-chip active' : 'desk-chip'}
+            onClick={() => {
+              setFilter(key);
+              const next =
+                key === 'all'
+                  ? items[0]
+                  : items.find((item) => item.bucket === key);
+              if (next) setSelectedId(next.id);
+            }}
           >
-            <Copy size={15} /> Copy URL
+            <strong>{count}</strong>
+            <span>{label}</span>
           </button>
-        </div>
-        {token && (
-          <>
+        ))}
+      </div>
+      {usingSample && (
+        <p className="desk-sample-note">
+          This list is a labeled June Paper Co. sample. Work it like a real
+          morning: pick a person, copy the next step, mark it done. Your buyers
+          replace this list after you load a workspace.
+        </p>
+      )}
+      <div className="operator-grid desk-grid">
+        <section className="operator-card desk-list" aria-label="People">
+          {visible.length === 0 ? (
+            <p>No one in this view.</p>
+          ) : (
+            visible.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={
+                  selected?.id === item.id ? 'desk-row selected' : 'desk-row'
+                }
+                onClick={() => setSelectedId(item.id)}
+              >
+                <span className={`operator-status ${item.bucket}`}>
+                  {item.label}
+                </span>
+                {doneIds.includes(item.id) && (
+                  <span className="operator-status skip">Done in this tab</span>
+                )}
+                <strong>{item.headline}</strong>
+                <small>
+                  {item.email ?? 'No email'}
+                  {item.amountLabel ? ` · ${item.amountLabel}` : ''}
+                  {item.sample ? ' · Sample' : ''}
+                </small>
+              </button>
+            ))
+          )}
+        </section>
+        {selected && (
+          <section className="operator-card" aria-label="Next step">
+            <span className={`operator-status ${selected.bucket}`}>
+              {selected.label}
+            </span>
+            <h2 style={{ marginTop: 12 }}>{selected.headline}</h2>
+            <p>{selected.detail}</p>
             <div className="operator-field">
-              <label htmlFor="workspace-key">Workspace key</label>
-              <div className="operator-key" id="workspace-key">
-                {token}
-              </div>
+              <label htmlFor="desk-script">What to do</label>
+              <textarea id="desk-script" readOnly value={selected.script} />
             </div>
             <div className="operator-actions">
               <button
+                className="button-primary"
+                type="button"
+                onClick={() => copy(selected.script)}
+              >
+                <Copy size={15} /> Copy the next step
+              </button>
+              <button
                 className="button-secondary"
                 type="button"
-                onClick={() => copy(token)}
+                onClick={() =>
+                  writeDone(
+                    doneIds.includes(selected.id)
+                      ? doneIds.filter((id) => id !== selected.id)
+                      : [...doneIds, selected.id],
+                  )
+                }
               >
-                <Copy size={15} /> Copy key
+                <Check size={15} />
+                {doneIds.includes(selected.id)
+                  ? 'Undo done'
+                  : 'Mark done in this tab'}
               </button>
             </div>
-          </>
+          </section>
         )}
-        <h2 style={{ marginTop: 28 }}>2. Unlock a workspace</h2>
-        <p>
-          A signed-in trial is 75 events for 14 days. A Whop license is the
-          product you can sell. Do not invent a live listing URL.
-        </p>
-        <div className="operator-actions">
-          {signedIn ? (
-            <button
-              className="button-primary"
-              type="button"
-              onClick={startTrial}
-              disabled={busy}
-            >
-              {token ? 'Rotate trial key' : 'Start a trial key'}{' '}
-              <ArrowRight size={16} />
-            </button>
-          ) : (
-            <Link href="/login" className="button-secondary">
-              Sign in for a trial
-            </Link>
-          )}
-          {whopUrl ? (
-            <a href={whopUrl} className="button-primary">
-              Buy on Whop <ArrowRight size={16} />
-            </a>
-          ) : (
-            <Link href="/pricing" className="button-secondary">
-              How to list this on Whop
-            </Link>
-          )}
-        </div>
-        <div className="operator-field">
-          <label htmlFor="license-key">Whop license key</label>
-          <input
-            id="license-key"
-            value={license}
-            onChange={(event) => setLicense(event.target.value)}
-            placeholder="dm1.starter.0...."
-            autoComplete="off"
-          />
-        </div>
-        <div className="operator-actions">
-          <button
-            className="button-secondary"
-            type="button"
-            onClick={redeem}
-            disabled={busy || !license.trim()}
-          >
-            Redeem license
-          </button>
-        </div>
-        <div className="operator-field">
-          <label htmlFor="destination-url">
-            Optional Operator destination (Zapier Catch Hook)
-          </label>
-          <input
-            id="destination-url"
-            value={destination}
-            onChange={(event) => setDestination(event.target.value)}
-            placeholder="https://hooks.zapier.com/hooks/catch/…"
-          />
-        </div>
-        <div className="operator-actions">
-          <button
-            className="button-secondary"
-            type="button"
-            onClick={addDestination}
-            disabled={busy || !token || !destination.trim()}
-          >
-            Save destination
-          </button>
-        </div>
-        {notice && <div className="notice">{notice}</div>}
-        {error && <div className="notice error">{error}</div>}
-      </section>
-      <section className="operator-card">
-        <h2>3. Prove the decision</h2>
-        <p>
-          These payloads are labeled fictional. They use June Paper Co. example
-          addresses. Send them with the sample key, then paste the same JSON
-          into Zapier.
-        </p>
-        <div className="operator-field">
-          <label htmlFor="sample-case">Sample event</label>
-          <select
-            id="sample-case"
-            value={caseId}
-            onChange={(event) => selectCase(event.target.value)}
-          >
-            {sampleOperatorCases.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.title} · {item.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="operator-field">
-          <label htmlFor="event-body">JSON body</label>
-          <textarea
-            id="event-body"
-            value={customBody}
-            onChange={(event) => setCustomBody(event.target.value)}
-            spellCheck={false}
-          />
-        </div>
-        <div className="operator-actions">
+      </div>
+      <div className="operator-actions">
+        <button
+          className="button-secondary"
+          type="button"
+          onClick={dropSamplePerson}
+          disabled={busy}
+        >
+          Drop Sam on the desk
+        </button>
+        {token ? (
           <button
             className="button-primary"
             type="button"
-            onClick={() => sendEvent(true)}
+            onClick={loadMine}
             disabled={busy}
           >
-            Decide with sample key
+            Load my people <ArrowRight size={16} />
           </button>
+        ) : signedIn ? (
           <button
-            className="button-secondary"
+            className="button-primary"
             type="button"
-            onClick={() => sendEvent(false)}
-            disabled={busy || !token}
+            onClick={startTrial}
+            disabled={busy}
           >
-            Decide with my key
+            Start a trial desk
           </button>
-        </div>
-        {decision && (
-          <article className="decision-item" style={{ marginTop: 18 }}>
-            <span className={`operator-status ${decision.action}`}>
-              {decision.action}
-            </span>
-            <h3>{decision.playbookTitle || 'No playbook'}</h3>
-            <p>{decision.reason}</p>
-            {decision.nextStep && <p>{decision.nextStep}</p>}
-          </article>
+        ) : (
+          <Link href="/login" className="button-secondary">
+            Sign in for a trial desk
+          </Link>
         )}
-      </section>
-      <section className="operator-card" style={{ gridColumn: '1 / -1' }}>
-        <h2>Zapier recipes</h2>
-        <p>
-          Each recipe is one Zap plus a Filter. Operator plan recipes still work
-          as a preview on the sample key; a Starter license will hold them with
-          an upgrade note instead of firing.
-        </p>
-        <div className="recipe-grid">
-          {zapRecipes.map((recipe) => (
-            <article key={recipe.id} className="decision-item">
-              <span className="eyebrow">{recipe.zapierCost}</span>
-              <h3>{recipe.title}</h3>
-              <ol>
-                {recipe.steps.map((step) => (
-                  <li key={step}>{step}</li>
-                ))}
-              </ol>
-            </article>
-          ))}
-        </div>
-      </section>
-      {history.length > 0 && (
-        <section className="operator-card" style={{ gridColumn: '1 / -1' }}>
-          <h2>This browser session</h2>
+        {whopUrl ? (
+          <a href={whopUrl} className="button-primary">
+            Buy on Whop
+          </a>
+        ) : (
+          <Link href="/pricing" className="button-secondary">
+            Pricing
+          </Link>
+        )}
+        <button
+          className="button-secondary"
+          type="button"
+          onClick={() => setSetupOpen((open) => !open)}
+        >
+          {setupOpen ? 'Hide setup' : 'Bring payments in'}
+        </button>
+      </div>
+      {notice && <div className="notice">{notice}</div>}
+      {error && <div className="notice error">{error}</div>}
+      {setupOpen && (
+        <section className="operator-card" style={{ marginTop: 22 }}>
+          <h2>Bring payments in</h2>
           <p>
-            Session decisions are a convenience in this tab. They are not a
-            server audit trail unless you used your workspace key.
+            Daymark is the desk. Stripe can POST here directly. Zapier is
+            optional if you already use it. You do not need a Zap Filter to use
+            the list above.
           </p>
-          <div className="decision-list">
-            {history.map((item, index) => (
-              <article
-                className="decision-item"
-                key={`${item.action}-${index}`}
-              >
-                <span className={`operator-status ${item.action}`}>
-                  {item.action}
-                </span>
-                <h3>{item.playbookTitle || 'No playbook'}</h3>
-                <p>{item.reason}</p>
-              </article>
-            ))}
+          <div className="operator-field">
+            <label htmlFor="ingest-url">URL for Stripe or Zapier</label>
+            <div className="operator-key" id="ingest-url">
+              /api/operator/ingest
+            </div>
+          </div>
+          <div className="operator-actions">
+            <button
+              className="button-secondary"
+              type="button"
+              onClick={() => copy(ingestUrl())}
+            >
+              <Copy size={15} /> Copy URL
+            </button>
+          </div>
+          {token && (
+            <>
+              <div className="operator-field">
+                <label htmlFor="workspace-key">Workspace key</label>
+                <div className="operator-key" id="workspace-key">
+                  {token}
+                </div>
+              </div>
+              <div className="operator-actions">
+                <button
+                  className="button-secondary"
+                  type="button"
+                  onClick={() => copy(token)}
+                >
+                  <Copy size={15} /> Copy key
+                </button>
+              </div>
+            </>
+          )}
+          <div className="operator-field">
+            <label htmlFor="license-key">License key from Whop</label>
+            <input
+              id="license-key"
+              value={license}
+              onChange={(event) => setLicense(event.target.value)}
+              placeholder="dm1.starter.0...."
+              autoComplete="off"
+            />
+          </div>
+          <div className="operator-actions">
+            <button
+              className="button-secondary"
+              type="button"
+              onClick={redeem}
+              disabled={busy || !license.trim()}
+            >
+              Redeem license
+            </button>
+          </div>
+          <div className="operator-field">
+            <label htmlFor="destination-url">
+              Optional: ping another URL when someone needs a message
+            </label>
+            <input
+              id="destination-url"
+              value={destination}
+              onChange={(event) => setDestination(event.target.value)}
+              placeholder="https://hooks.zapier.com/hooks/catch/…"
+            />
+          </div>
+          <div className="operator-actions">
+            <button
+              className="button-secondary"
+              type="button"
+              onClick={addDestination}
+              disabled={busy || !token || !destination.trim()}
+            >
+              Save follow-up URL
+            </button>
           </div>
         </section>
       )}
-      <section className="operator-card" style={{ gridColumn: '1 / -1' }}>
+      <section className="operator-card" style={{ marginTop: 22 }}>
         <ShieldCheck size={18} />
         <p style={{ marginTop: 10 }}>
-          <Check size={14} /> Daymark does not connect your Zapier account, does
-          not submit payment, and does not read ad accounts. A successful sample
-          decision is not evidence from a customer store.
+          <Check size={14} /> Done marks stay in this browser. They are not a
+          team audit trail. Sample people are fiction. Daymark does not read ad
+          accounts or log into Stripe for you.
         </p>
       </section>
     </div>

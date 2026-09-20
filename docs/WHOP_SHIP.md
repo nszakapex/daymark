@@ -9,7 +9,7 @@ Do this only when the operator ingest is on a public URL you control. A GitHub p
 
 Copy you can paste:
 
-> Daymark is a decision layer for Zapier. POST Stripe, Whop, Shopify, or form events to your ingest URL. Daymark returns fire, hold, suppress, escalate, or inconclusive — with a reason. Filter the Zap on that action. It will not invent a buyer, a product, or a reason a campaign worked.
+> Daymark is a morning desk for failed payments, new buyers, and refunds. Open it and see who to email once, who to stop, and who to leave alone. Stripe can fill the list. Zapier is optional. It will not invent a buyer or a reason a campaign worked.
 
 Do not promise live ad connections or cart monitoring.
 

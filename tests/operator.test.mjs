@@ -7,6 +7,7 @@ import {
   SAMPLE_INGEST_TOKEN,
 } from '../lib/operator.ts';
 import { sampleOperatorDecisions } from '../lib/operator-sample.ts';
+import { presentDeskItem, sampleDesk } from '../lib/desk.ts';
 import { issueLicense, verifyLicense } from '../lib/license.ts';
 
 const secret = 'daymark-test-license-secret';
@@ -180,6 +181,25 @@ test('raw Stripe events are read without a Daymark envelope', () => {
   assert.equal(event.email, 'sam@example.test');
   assert.equal(event.amountCents, 3800);
   assert.equal(decideEvent(event, { plan: 'starter' }).action, 'fire');
+});
+
+test('the sample desk is people and next steps, not Zapier verbs', () => {
+  const desk = sampleDesk();
+  assert.equal(desk[0].label, 'Email once');
+  assert.match(desk[0].headline, /Sam/);
+  assert.match(desk[0].script, /once/);
+  assert.equal(desk[1].bucket, 'skip');
+  assert.equal(desk[2].label, 'Ask a person');
+  assert.equal(desk[3].label, 'Send the welcome');
+  assert.equal(desk[4].bucket, 'fix');
+  const item = presentDeskItem({
+    id: 'x',
+    email: 'sam@example.test',
+    amountCents: 3800,
+    productName: 'Planner',
+    decision: sampleOperatorDecisions()[0].decision,
+  });
+  assert.equal(item.bucket, 'do');
 });
 
 test('labeled sample tape stays internally consistent', () => {

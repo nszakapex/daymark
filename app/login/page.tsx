@@ -64,7 +64,7 @@ export default async function LoginPage() {
           <p>
             {user
               ? 'You’re signed in. Save your details, start a trial key, or redeem a license.'
-              : 'Sign in to start a 14-day operator trial and save your details. You can try the operator sample key and the sample report without an account.'}
+              : 'Sign in to start a 14-day desk trial and save your details. You can work the sample desk and the sample report without an account.'}
           </p>
           <a
             className="button-primary auth-primary"
@@ -77,12 +77,12 @@ export default async function LoginPage() {
           </a>
           <div className="auth-divider">just looking?</div>
           <Link href="/operator" className="auth-secondary">
-            Open the operator <ArrowUpRight size={16} />
+            Work today’s desk <ArrowUpRight size={16} />
           </Link>
           <div className="auth-disclosure">
             <ShieldCheck size={15} />
             <span>
-              Signing in does not connect Zapier, ads, or a store. A trial key
+              Signing in does not connect Stripe, ads, or a store. A trial key
               is not a paid license. No payment details are collected here.
             </span>
           </div>

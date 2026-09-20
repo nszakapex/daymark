@@ -1,49 +1,41 @@
 import { ArrowRight } from 'lucide-react';
 import Link from '@/components/site-link';
-import { sampleOperatorDecisions } from '@/lib/operator-sample.ts';
-import { formatCents } from '@/lib/operator.ts';
+import { sampleDesk } from '@/lib/desk.ts';
 
 export default function OperatorPanel() {
-  const rows = sampleOperatorDecisions();
+  const rows = sampleDesk();
   return (
     <section className="decisions-section">
       <div className="connections-intro">
         <div>
-          <strong>Fictional operator tape.</strong>
+          <strong>Fictional morning desk.</strong>
           <p>
-            These decisions are computed from labeled sample events for June
-            Paper Co. They are not live Zapier traffic and not proof that a
-            promotion worked.
+            These people are labeled June Paper Co. samples. They are not live
+            buyers and not proof that a promotion worked.
           </p>
         </div>
       </div>
       <div className="decision-list">
-        {rows.map(({ event, decision }) => (
-          <article className="decision-row" key={event.idempotencyKey ?? event.type}>
+        {rows.map((item) => (
+          <article className="decision-row" key={item.id}>
             <span
               className={
-                decision.action === 'fire' || decision.action === 'escalate'
+                item.bucket === 'do'
                   ? 'status-healthy'
-                  : decision.action === 'inconclusive'
+                  : item.bucket === 'fix'
                     ? 'status-review'
                     : 'offer-status'
               }
             >
-              {decision.action}
+              {item.label}
             </span>
-            <h3>{decision.playbookTitle ?? 'Unknown event'}</h3>
-            <p>{decision.reason}</p>
-            <p>
-              {event.email ?? 'No email'} ·{' '}
-              {event.amountCents == null
-                ? 'Amount unknown'
-                : formatCents(event.amountCents)}
-            </p>
+            <h3>{item.headline}</h3>
+            <p>{item.script}</p>
           </article>
         ))}
       </div>
       <Link className="button-primary" href="/operator">
-        Open the live operator <ArrowRight size={16} />
+        Work today’s desk <ArrowRight size={16} />
       </Link>
     </section>
   );

@@ -19,10 +19,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Daymark — Stop the wrong Zap',
+  title: 'Daymark — Who to email today',
   icons: { icon: '/favicon.svg' },
   description:
-    'Daymark decides whether a Zapier event should fire, wait, or stay unknown. $49 once or $19 a month. The sample marketing workspace stays labeled fiction.',
+    'Daymark is a desk for failed payments, new buyers, and refunds: who to email, who to stop, who to leave alone. $49 once or $19 a month. The sample marketing report stays labeled fiction.',
 };
 
 export default function RootLayout({

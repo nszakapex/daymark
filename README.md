@@ -1,6 +1,6 @@
 # Daymark
 
-A Zapier decision layer with a labeled marketing-intelligence sample. Working name; brand clearance has not been assessed.
+A morning desk for failed payments, new buyers, and refunds, plus a labeled marketing-intelligence sample. Working name; brand clearance has not been assessed.
 
 ## Open and develop
 
@@ -21,7 +21,7 @@ The sample opens at the server's printed URL, normally `http://localhost:3000/de
 ## Routes
 
 - `/`: product website, operator pitch, and pricing.
-- `/operator`: Zapier ingest URL, sample decisions, license redeem, and recipes.
+- `/operator`: today’s desk — who to email, stop, or leave alone. Setup for Stripe or Zapier is optional.
 - `/pricing`: Starter $49 and Operator $19/month, plus Whop fulfillment notes.
 - `/demo`: fictional offer checks, campaign performance, source evidence, order activity, sample operator tape, and planned connections.
 - `/sample-store`: fictional basket calculated using the same promotion rules as the offer checker; no orders or payments.

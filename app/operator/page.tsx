@@ -15,7 +15,7 @@ export default async function OperatorPage() {
         <Brand />
         <nav>
           <Link href="/pricing">Pricing</Link>
-          <Link href="/demo">Sample</Link>
+          <Link href="/demo">Sample report</Link>
           <Link href="/privacy">Privacy</Link>
         </nav>
         <Link className="nav-login" href="/login">
@@ -24,18 +24,19 @@ export default async function OperatorPage() {
       </header>
       <main className="operator-shell" id="main-content" tabIndex={-1}>
         <span className="eyebrow">
-          <span className="status-dot" /> Operator
+          <span className="status-dot" /> Today
         </span>
         <h1>
-          Connect Zapier.
+          Who to email.
           <br />
-          Keep the reason.
+          Who to stop.
+          <br />
+          Who to leave alone.
         </h1>
         <p className="lead">
-          POST events to Daymark. Filter your Zap on the action that comes back.
-          Incomplete events stay inconclusive. Duplicates do not get a second
-          send. This is not a live store check and not a claim that a campaign
-          worked.
+          Daymark is a morning desk for payments and signups. Open it, do the
+          next step, mark it done. Stripe or Zapier can fill the list later.
+          This is not a live ad report and not a claim that a campaign worked.
         </p>
         <OperatorConsole signedIn={Boolean(user)} whopUrl={whopListingUrl()} />
       </main>

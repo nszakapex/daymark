@@ -1,6 +1,6 @@
 # Continue Daymark in Cursor
 
-Daymark's sellable outcome is a Zapier decision layer: fire, hold, suppress, escalate, or inconclusive, with a reason. The marketing sample still exists and stays labeled fiction. Real store monitoring is unimplemented and is not the $49 / $19 SKU. Read docs/PRODUCT_AUDIT.md before changing the pitch.
+Daymark's sellable outcome is a desk: who to email, who to stop, who to leave alone, from payments and signups. Zapier is optional intake, not the product. The marketing sample stays labeled fiction. Read docs/PRODUCT_AUDIT.md before changing the pitch.
 
 ## Open this prepared checkout
 

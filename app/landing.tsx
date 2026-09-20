@@ -29,7 +29,7 @@ export default function Landing() {
         <nav>
           <a href="#how-it-works">How it works</a>
           <a href="#pricing">Pricing</a>
-          <Link href="/operator">Operator</Link>
+          <Link href="/operator">Today’s desk</Link>
         </nav>
         <Link className="nav-login" href="/login">
           Log in <ArrowUpRight size={16} />
@@ -39,64 +39,59 @@ export default function Landing() {
         <section className="hero">
           <div className="hero-copy">
             <span className="eyebrow">
-              <span className="status-dot" /> Zapier decides nothing. Daymark
-              does.
+              <span className="status-dot" /> A desk you can finish
             </span>
             <h1>
-              Stop the wrong Zap.
+              Who to email.
               <br />
-              <span>Release the right one.</span>
+              <span>Who to leave alone.</span>
             </h1>
             <p>
-              Daymark sits in front of Zapier and decides whether an event
-              should fire, wait, or stay unknown. You get a reason, not another
-              filter you have to babysit.
+              Daymark turns failed payments, new buyers, and refunds into a
+              short list: email once, stop access, or do nothing. You work the
+              list. Tools can fill it. You do not live inside Zapier.
             </p>
             <div className="hero-actions">
               <Link href="/operator" className="button-primary">
-                Open the operator <ArrowUpRight size={19} />
+                Work today’s desk <ArrowUpRight size={19} />
               </Link>
               <Link href="/demo" className="button-secondary">
                 Sample report
               </Link>
             </div>
             <div className="hero-footnote">
-              <Check size={15} /> $49 once or $19 a month. Works with Zapier
-              Webhooks the same day.
+              <Check size={15} /> $49 once or $19 a month. The sample desk is
+              ready now.
             </div>
           </div>
           <div className="hero-product">
             <div className="preview-top">
               <span>
-                <span className="small-mark">d.</span> Operator decision
+                <span className="small-mark">d.</span> Today
               </span>
-              <span className="label-pill">Live webhook, not a cart guess</span>
+              <span className="label-pill">Labeled sample</span>
             </div>
             <div className="preview-inner">
-              <span className="eyebrow">
-                Failed payment · Stripe via Zapier
-              </span>
+              <span className="eyebrow">Sam · $38 planner</span>
               <h2>
-                Fire recovery.
+                Email once.
                 <br />
-                Once.
+                Then stop.
               </h2>
               <div className="preview-stats">
                 <div>
-                  <span>Action</span>
+                  <span>Do now</span>
                   <strong>
-                    fire
-                    <span> →</span>
+                    2<span> →</span>
                   </strong>
-                  <small>Continue the Zap only on fire or escalate</small>
+                  <small>One recovery, one welcome</small>
                 </div>
                 <div>
-                  <span>Same event, same hour</span>
+                  <span>Leave alone</span>
                   <strong>
-                    suppress
-                    <span className="orange"> ↗</span>
+                    1<span className="orange"> ↗</span>
                   </strong>
-                  <small>Duplicates do not get a second email</small>
+                  <small>Same failure, same hour</small>
                 </div>
               </div>
               <div className="preview-insight">
@@ -106,22 +101,22 @@ export default function Landing() {
                 <div>
                   <span className="eyebrow">One useful next step</span>
                   <h3>
-                    Missing email or amount
+                    Copy the note.
                     <br />
-                    stays inconclusive
+                    Mark it done.
                   </h3>
                   <p>
-                    Daymark will not invent a buyer, a product, or a reason the
-                    ads worked. Incomplete events do not start automations.
+                    If the email or amount is missing, Daymark will not invent a
+                    message. You fix the record instead of guessing.
                   </p>
                   <Link href="/operator">
-                    Send a sample event <ArrowRight size={16} />
+                    Open the desk <ArrowRight size={16} />
                   </Link>
                 </div>
               </div>
               <div className="preview-bottom">
                 <span>
-                  <Activity size={14} /> Decision in the Zap response
+                  <Activity size={14} /> Five sample people
                 </span>
                 <span>01 / 01</span>
               </div>
@@ -129,7 +124,7 @@ export default function Landing() {
           </div>
         </section>
         <div className="ecosystem-strip">
-          <span>Events Daymark already reads</span>
+          <span>Payments Daymark already reads</span>
           <div className="ecosystem-logos">
             {[
               { name: 'Stripe', label: 'Stripe' },
@@ -141,48 +136,45 @@ export default function Landing() {
               </span>
             ))}
             <span>
-              <b>Zapier</b>
-            </span>
-            <span>
               <b>Whop</b>
             </span>
             <span>
-              <b>Your stack</b>
+              <b>Zapier</b>
             </span>
           </div>
           <small>
-            Zapier and Whop are named as tools, not as partners. No unofficial
-            marks were added.
+            Stripe can post here directly. Zapier is optional. Marks are not a
+            partnership claim.
           </small>
         </div>
         <section className="how-section" id="how-it-works">
           <div>
-            <span className="eyebrow">How the operator works</span>
-            <h2>From the event to the next Zap.</h2>
+            <span className="eyebrow">How to use it</span>
+            <h2>Open the list. Do the next thing.</h2>
           </div>
           <div className="steps">
             <article>
               <span>01</span>
-              <h3>Catch the event</h3>
+              <h3>See the person</h3>
               <p>
-                Stripe, Whop, Shopify, or a form posts into Zapier. Zapier POSTs
-                that payload to Daymark. Raw Stripe events are fine.
+                Failed payment, new purchase, refund, or a record that is not
+                ready. Each row is someone, not a JSON action name.
               </p>
             </article>
             <article>
               <span>02</span>
-              <h3>Get a decision</h3>
+              <h3>Do one step</h3>
               <p>
-                Fire, hold, suppress, escalate, or inconclusive. The reason and
-                evidence come back in the same request so Zapier can filter.
+                Copy the note, stop access, or write them yourself. Duplicates
+                stay off the “do now” list.
               </p>
             </article>
             <article>
               <span>03</span>
-              <h3>Release one action</h3>
+              <h3>Let money arrive</h3>
               <p>
-                Continue only when the action is fire or escalate. High-value
-                failures and chargebacks go to a person, not a dunning sequence.
+                Point Stripe or Zapier at Daymark when you want your buyers
+                instead of the sample. The desk does not change.
               </p>
             </article>
           </div>
@@ -190,7 +182,7 @@ export default function Landing() {
         <section className="how-section" id="pricing">
           <div>
             <span className="eyebrow">Pricing</span>
-            <h2>Built to ship on Whop.</h2>
+            <h2>A desk, not a filter pack.</h2>
           </div>
         </section>
         <div className="price-grid">
@@ -201,18 +193,18 @@ export default function Landing() {
               $49 <span>once</span>
             </div>
             <p>
-              Failed-payment and new-buyer playbooks. The decision comes back
-              inside the Zap. No monthly fee, no outbound fan-out.
+              Failed payments and new buyers on your desk. One thousand people
+              per UTC month. You work the list in Daymark.
             </p>
             <ul>
               <li>
-                <Check size={16} /> 1,000 events each UTC month
+                <Check size={16} /> Email once, or leave them alone
               </li>
               <li>
-                <Check size={16} /> Dedup and inconclusive holds
+                <Check size={16} /> Incomplete records stay unsent
               </li>
               <li>
-                <Check size={16} /> Zapier recipes you can copy today
+                <Check size={16} /> Sample desk you can finish today
               </li>
             </ul>
             <Link href="/pricing" className="button-secondary">
@@ -226,18 +218,18 @@ export default function Landing() {
               $19 <span>/ month</span>
             </div>
             <p>
-              Refunds, chargebacks, churn, and stale leads. Optional outbound
-              webhooks if you want a second Zap to catch the decision.
+              Refunds, chargebacks, cancels, and stale leads join the same list.
+              Optional ping when someone needs a message.
             </p>
             <ul>
               <li>
-                <Check size={16} /> 20,000 events each UTC month
+                <Check size={16} /> 20,000 people each UTC month
               </li>
               <li>
-                <Check size={16} /> Up to three Zapier destinations
+                <Check size={16} /> Stop access after a refund
               </li>
               <li>
-                <Check size={16} /> The playbooks Starter only names
+                <Check size={16} /> High-value failures go to you
               </li>
             </ul>
             <Link href="/pricing" className="button-primary">
@@ -246,19 +238,17 @@ export default function Landing() {
           </article>
         </div>
         <p className="honest-note">
-          This is not a claim that automations make money, or that ads caused a
-          sale. The sample marketing workspace is still fictional and labeled. A
-          webhook is not a store pilot. Buy this if you want fewer reckless
-          Zaps, not if you want proof that a promotion worked.
+          The sample marketing report is still fiction. Daymark does not prove
+          ads caused a sale. Buy this if you will open a list of people. Do not
+          buy it if you wanted a Zapier tutorial or a live ad dashboard.
         </p>
         <section className="access-section" id="early-access">
           <div>
             <span className="eyebrow">Your account</span>
-            <h2>Trial from sign-in. License from Whop.</h2>
+            <h2>Try the desk. License it when it is yours.</h2>
             <p>
-              Sign in to start a 14-day, 75-event trial. A Whop license upgrades
-              the same workspace. Live ad-account connections are still not
-              implemented; the operator does not need them.
+              Sign in for a 14-day trial with your own rows. A Whop license
+              keeps the same desk. Live ad connections are still not built.
             </p>
           </div>
           <Link href="/login" className="button-primary">
@@ -268,9 +258,9 @@ export default function Landing() {
       </main>
       <footer className="site-footer">
         <Brand />
-        <span>A reason before the next Zap.</span>
+        <span>A list you can finish.</span>
         <Link href="/operator">
-          Open the operator <ArrowUpRight size={15} />
+          Today’s desk <ArrowUpRight size={15} />
         </Link>
       </footer>
     </div>

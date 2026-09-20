@@ -44,7 +44,7 @@ for (const path of [
 }
 const operatorPage = await fetch(base + '/operator');
 assert.equal(operatorPage.status, 200);
-assert.match(await operatorPage.text(), /Connect Zapier/);
+assert.match(await operatorPage.text(), /Who to email/);
 const pricingPage = await fetch(base + '/pricing');
 assert.equal(pricingPage.status, 200);
 assert.match(await pricingPage.text(), /\$49/);
