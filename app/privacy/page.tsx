@@ -7,9 +7,10 @@ export default function PrivacyPage() {
       <Brand />
       <h1>How your data is handled.</h1>
       <p>
-        Daymark is an early product preview. The sample marketing workspace
-        contains fictional business records. It does not connect to advertising,
-        analytics, customer, or payment accounts.
+        Daymark is an early product. The sample marketing workspace contains
+        fictional business records. It does not connect to advertising,
+        analytics, customer, or payment accounts. The operator accepts events
+        you send through Zapier or the sample key.
       </p>
       <h2>When you sign in</h2>
       <p>
@@ -50,14 +51,29 @@ export default function PrivacyPage() {
         session storage is unavailable, results last until you leave or reload
         the page. This sample history is not saved to your account.
       </p>
+      <h2>Operator events</h2>
+      <p>
+        Operator events you send with a workspace key are stored with the
+        decision, including email, amount, source, type, and the JSON you
+        posted. The sample key does not store events. License keys are hashed.
+        Workspace tokens are shown once and stored as hashes. Daymark does not
+        receive your Zapier password.
+      </p>
+      <h2>Buying on Whop</h2>
+      <p>
+        Payment is handled by Whop when you publish a listing. This application
+        does not take cards. A Whop webhook is only verified if you configure a
+        signing secret; it does not invent a membership.
+      </p>
       <h2>Connecting a real business</h2>
       <p>
-        Any live pilot will need a clear agreement covering the data sources,
-        permissions, retention, and delivery involved. This preview does not
-        collect real customer records or billing details.
+        Live advertising imports and real browser offer checks are still
+        unimplemented. Do not describe them as shipping. The operator does not
+        need those connections. Any later import will need a clear agreement
+        covering sources, permissions, and retention.
       </p>
-      <Link className="text-link" href="/workspace">
-        <ArrowLeft size={15} /> Back to early-access details
+      <Link className="text-link" href="/operator">
+        <ArrowLeft size={15} /> Back to the operator
       </Link>
     </main>
   );

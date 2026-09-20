@@ -4,6 +4,8 @@ export const toolOptions = [
   'Shopify',
   'Stripe',
   'Google Analytics',
+  'Zapier',
+  'Whop',
   'A CRM',
   'Other',
 ] as const;
@@ -11,6 +13,10 @@ export const goalOptions = [
   { value: 'customer-cost', label: 'Understand what a new customer costs' },
   { value: 'working-channels', label: 'Compare results from my ad platforms' },
   { value: 'reliable-data', label: 'Make my marketing numbers more reliable' },
+  {
+    value: 'operator-zaps',
+    label: 'Stop my automations from firing on incomplete events',
+  },
 ] as const;
 export type ProfileInput = {
   name: string;

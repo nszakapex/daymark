@@ -1,10 +1,10 @@
 # Daymark
 
-An early marketing-intelligence product preview. Working name; brand clearance has not been assessed.
+A morning desk for failed payments, new buyers, and refunds, plus a labeled marketing-intelligence sample. Working name; brand clearance has not been assessed.
 
 ## Open and develop
 
-See [Continue in Cursor](docs/CURSOR_START.md) for the prepared local checkout, a reusable agent prompt, capability boundaries and the first real-store milestone. Open `daymark.code-workspace` in Cursor. The pinned stack is Vinext, React, TypeScript and Cloudflare Workers/D1.
+See [Continue in Cursor](docs/CURSOR_START.md) for the prepared local checkout, capability boundaries, the operator SKU, and the still-unbuilt store-check path. Read [the product audit](docs/PRODUCT_AUDIT.md) and [Whop ship notes](docs/WHOP_SHIP.md) before selling anything. Open `daymark.code-workspace` in Cursor. The pinned stack is Vinext, React, TypeScript and Cloudflare Workers/D1.
 
 Use Node 24 LTS and the package manager pinned in package.json:
 
@@ -20,18 +20,21 @@ The sample opens at the server's printed URL, normally `http://localhost:3000/de
 
 ## Routes
 
-- `/`: product website and early-access entry point.
-- `/demo`: fictional offer checks, campaign performance, source evidence, order activity, decisions, and planned connections.
+- `/`: product website, operator pitch, and pricing.
+- `/operator`: today’s desk — who to email, stop, or leave alone. Setup for Stripe or Zapier is optional.
+- `/pricing`: Starter $49 and Operator $19/month, plus Whop fulfillment notes.
+- `/demo`: fictional offer checks, campaign performance, source evidence, order activity, sample operator tape, and planned connections.
 - `/sample-store`: fictional basket calculated using the same promotion rules as the offer checker; no orders or payments.
 - `/api/sample-check`: validates a requested sample scenario and returns computed cart evidence; no external account access.
+- `/api/operator/ingest`: Zapier POST endpoint. `dm_sample` decides without storage. A workspace key persists the decision.
 - `/login`: platform-supported Sign in with ChatGPT.
-- `/workspace`: authenticated early-access details, saved in D1 with ownership enforced on the server; confirmation, edit, cancel, and deletion flows.
-- `/privacy`: preview-specific data handling explanation.
+- `/workspace`: authenticated account details, saved in D1 with ownership enforced on the server; confirmation, edit, cancel, and deletion flows.
+- `/privacy`: data handling explanation.
 - `/api/workspace`: authenticated read, save, and deletion of the current user's profile.
 
 ## What is real
 
-Profile persistence, input validation, contact preference, per-account ownership, deletion, and the Sites authentication integration. The local Sites plugin uses a synthetic local identity only after local sign-in. Hosted identity comes from trusted Sites dispatch headers; do not expose the Worker behind this authentication gateway directly.
+Profile persistence, input validation, contact preference, per-account ownership, deletion, and the Sites authentication integration. The operator decides fire/hold/suppress/escalate/inconclusive from a posted event. Workspace keys and licenses are hashed. The local Sites plugin uses a synthetic local identity only after local sign-in. Hosted identity comes from trusted Sites dispatch headers; do not expose the Worker behind this authentication gateway directly. A Whop listing and `DAYMARK_LICENSE_SECRET` are operator-owned configuration, not something this repository invents.
 
 ## What is a demonstration
 
@@ -47,7 +50,7 @@ Page navigation uses `components/site-link.tsx`, a native anchor. Vinext 1.0.0-b
 
 Use the locked package versions. Run `pnpm install`, `pnpm dev`, and use the platform's local sign-in. Generate schema changes with `pnpm db:generate`. The D1 binding is configured in `.openai/hosting.json`; generated migrations are deployed with the site. Local migrations can be applied with Wrangler after a build using its generated server config and the same `.wrangler/state` persistence directory.
 
-Validation: `node --test tests/data.test.mjs tests/offer-checks.test.mjs`, `pnpm lint`, `pnpm exec tsc --noEmit`, `pnpm build`. With the local server running, `node tests/campaign-api-smoke.mjs` checks offer outcomes, invalid input, cache behavior and sample routes. With the local migration applied, `node tests/api-smoke.mjs` exercises synthetic account persistence and authentication/error boundaries. It refuses to overwrite an existing local profile and removes its fixture.
+Validation: `node --test tests/data.test.mjs tests/offer-checks.test.mjs tests/operator.test.mjs`, `pnpm lint`, `pnpm exec tsc --noEmit`, `pnpm build`. With the local server running, `node tests/campaign-api-smoke.mjs` checks offer outcomes, sample operator ingest, invalid input, cache behavior and sample routes. With the local migration applied, `node tests/api-smoke.mjs` exercises synthetic account persistence and authentication/error boundaries. It refuses to overwrite an existing local profile and removes its fixture. Issue a sellable license only with `pnpm license:issue` and a local secret; do not commit the secret.
 
 The demo feature-detects WebMCP and exposes a read-only fictional report tool. WebMCP is not required for the product to operate. Customer journey checks cover the sample review, evidence and date controls, browser-local progress, mobile menu, and synthetic-account create/edit/cancel/reload/delete flows. Hosted entry navigation is verified after publication.
 

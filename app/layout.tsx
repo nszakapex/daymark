@@ -6,6 +6,7 @@ import './product-polish.css';
 import './product-responsive.css';
 import './customer-experience.css';
 import './campaign-checks.css';
+import './operator.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -18,10 +19,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Daymark — Know your next move',
+  title: 'Daymark — Who to email today',
   icons: { icon: '/favicon.svg' },
   description:
-    'Check what your marketing promises, understand campaign performance, and see the evidence for your next move. Explore the Daymark sample workspace.',
+    'Daymark is a desk for failed payments, new buyers, and refunds: who to email, who to stop, who to leave alone. $49 once or $19 a month. The sample marketing report stays labeled fiction.',
 };
 
 export default function RootLayout({

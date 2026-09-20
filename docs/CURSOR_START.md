@@ -1,6 +1,6 @@
 # Continue Daymark in Cursor
 
-Daymark's proposed outcome is to find when a marketing promise fails in the customer's journey, show the evidence and associated campaign spending, and verify the correction. The current release demonstrates that workflow with a fictional store. Real monitoring still needs implementation and validation.
+Daymark's sellable outcome is a desk: who to email, who to stop, who to leave alone, from payments and signups. Zapier is optional intake, not the product. The marketing sample stays labeled fiction. Read docs/PRODUCT_AUDIT.md before changing the pitch.
 
 ## Open this prepared checkout
 
@@ -19,7 +19,7 @@ The project lives in WSL; Cursor runs on Windows. Use Cursor's integrated WSL te
 pnpm dev
 ```
 
-Open the local URL printed by the server, normally http://localhost:3000/demo. Keep that terminal running. In a second terminal:
+Open the operator at the printed URL, normally http://localhost:3000/operator. The labeled marketing sample is /demo. Keep that terminal running. In a second terminal:
 
 ```bash
 pnpm check
@@ -47,30 +47,34 @@ pnpm dev
 
 ## What works today
 
-| Area | Implemented | Still required for real use |
-| --- | --- | --- |
-| Offer checks | API compares confirmed terms with fictional basket rules; failed/verified/inconclusive outcomes | Authorized store adapter and real browser observations |
-| Corrections | Separate original/corrected scenarios and fresh rechecks | Observe changes made in the actual store |
-| History | Last 20 sample check inputs/timestamps in tab session storage; latest 6 displayed | Server-owned run history and evidence retention |
-| Marketing analysis | Deterministic record-based reports, refunds, source matching, missing-data bounds | Authorized imports, freshness, reconciliation and error handling |
-| Accounts | Sites sign-in and tenant-owned early-access profiles in D1 | Production business memberships, offers, runs and connector ownership |
-| Monitoring | User-triggered fictional check | Scheduler, timeouts, retries, concurrency and operating-cost limits |
+| Area               | Implemented                                                                                     | Still required for real use                                                            |
+| ------------------ | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Operator           | Ingest API, playbooks, sample key, license redeem, hashed workspace keys                        | Hosted `DAYMARK_LICENSE_SECRET`, a real Whop listing, buyer traffic                    |
+| Offer checks       | API compares confirmed terms with fictional basket rules; failed/verified/inconclusive outcomes | Authorized store adapter and real browser observations                                 |
+| Corrections        | Separate original/corrected scenarios and fresh rechecks                                        | Observe changes made in the actual store                                               |
+| History            | Last 20 sample check inputs/timestamps in tab session storage; latest 6 displayed               | Server-owned offer-check history. Operator events persist when a workspace key is used |
+| Marketing analysis | Deterministic record-based reports, refunds, source matching, missing-data bounds               | Authorized imports, freshness, reconciliation and error handling                       |
+| Accounts           | Sites sign-in, tenant-owned profiles, optional operator trial                                   | Production memberships beyond hashed licenses                                          |
+| Monitoring         | User-triggered fictional check                                                                  | Scheduler, timeouts, retries, concurrency and operating-cost limits                    |
 
 ## First task for Cursor
 
 Use this as an initial agent prompt:
 
-> Read AGENTS.md, README.md and docs/CURSOR_START.md. Run the existing checks and report any failures before editing. Preserve Daymark's current UI. Plan the smallest real offer-checking path for one authorized Shopify test store: explicit product, quantity, discount, market and expected benefit; actual observed cart evidence; failed, passed and inconclusive outcomes; persisted original and subsequent runs. Identify the credentials or test-store access required. Do not call a simulation live, invent credentials, submit payment, or replace the application framework. Start with the first bounded implementation that can be tested locally while access is being arranged.
+> Read AGENTS.md, README.md, docs/CURSOR_START.md and docs/PRODUCT_AUDIT.md. Run the existing checks and report any failures before editing. Preserve Daymark's current UI. Do not present the sample report or sample ingest as live customer evidence. Do not invent Whop listings, license secrets, or OAuth connections. If the task is commercial, work on the operator and Whop fulfillment, not a store pilot.
 
 ## Milestones and acceptance criteria
 
-1. **One real offer.** Confirm exact terms before execution. Collect real cart evidence and time of observation. A deliberately wrong promotion on the test store must fail. Fixing the store must yield a new passing observation. Unreachable pages, challenge pages and missing terms must remain inconclusive.
-2. **Reliable history.** Add tenant-owned offers, terms versions, runs, step evidence and scheduler state. Verify cross-account isolation, idempotent retries, timeouts and stale evidence. Keep both original and corrected results.
-3. **Business context.** Add one read-only advertising connector and explicit campaign-to-offer mapping. Compare imported totals with the platform's report. Show freshness and associated spend; do not claim saved money from exposure alone.
-4. **Pilot proof.** Measure real issues found, time to correction, false alarms, repeat usage and cost per check. Price from demonstrated value and operating costs before expanding integrations.
+1. **Operator a stranger can use.** Public ingest URL, a redeemed license or trial key, one Zapier POST, a Filter on `action`, and a stored decision that is not the sample key.
+2. **Whop fulfillment.** Issued license keys, hashed redeem, Starter vs Operator entitlements, no invented listing.
+3. **One real offer (later, not the $19 SKU).** Confirm exact terms before execution. Collect real cart evidence and time of observation. A deliberately wrong promotion on the test store must fail. Unreachable pages stay inconclusive.
+4. **Do not claim causation or savings.** Campaign spend is context. Last recorded source is not cause. Sample cart checks are not browser checks.
 
 ## Where to work
 
+- `app/operator/`: live operator console.
+- `lib/operator.ts`: playbooks and decisions.
+- `app/api/operator/ingest/route.ts`: Zapier boundary.
 - `app/workspace-ui.tsx`: main workspace and reporting views.
 - `components/offer-checks.tsx`: offer selection, check results and next steps.
 - `lib/offer-checks.ts`: fictional cart model and comparison logic.

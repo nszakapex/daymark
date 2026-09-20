@@ -28,8 +28,8 @@ export default async function LoginPage() {
             <span>a little clearer.</span>
           </h1>
           <p>
-            Make room for the part of marketing that matters: understanding what
-            to do next.
+            Sign in to start a short operator trial, or redeem a Whop license on
+            the operator page. The sample report still needs no account.
           </p>
           <div className="auth-preview">
             <div>
@@ -59,12 +59,12 @@ export default async function LoginPage() {
             <ScanLine size={25} />
           </span>
           <h1 id="main-content" tabIndex={-1}>
-            Get early access.
+            Your Daymark account.
           </h1>
           <p>
             {user
-              ? 'You’re signed in. Save your business details and tell us which tools you use.'
-              : 'Sign in to save your business details and email preference. You can try the sample report without an account.'}
+              ? 'You’re signed in. Save your details, start a trial key, or redeem a license.'
+              : 'Sign in to start a 14-day desk trial and save your details. You can work the sample desk and the sample report without an account.'}
           </p>
           <a
             className="button-primary auth-primary"
@@ -72,19 +72,18 @@ export default async function LoginPage() {
             target={user ? undefined : '_top'}
           >
             {user ? <Check size={18} /> : <ShieldCheck size={18} />}{' '}
-            {user ? 'Open my early-access profile' : 'Continue with ChatGPT'}
+            {user ? 'Open my account' : 'Continue with ChatGPT'}
             <ArrowRight size={17} />
           </a>
           <div className="auth-divider">just looking?</div>
-          <Link href="/demo" className="auth-secondary">
-            Explore sample report <ArrowUpRight size={16} />
+          <Link href="/operator" className="auth-secondary">
+            Work today’s desk <ArrowUpRight size={16} />
           </Link>
           <div className="auth-disclosure">
             <ShieldCheck size={15} />
             <span>
-              Live marketing connections are still being built. Signing in saves
-              your early-access details; it does not create a report from your
-              business data. No payment details needed.
+              Signing in does not connect Stripe, ads, or a store. A trial key
+              is not a paid license. No payment details are collected here.
             </span>
           </div>
           <div className="auth-link-row">

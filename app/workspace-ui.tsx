@@ -9,6 +9,7 @@ import {
   ChartNoAxesCombined,
   ScanLine,
   Plug,
+  Workflow,
   Check,
   CheckCheck,
   ChevronRight,
@@ -60,6 +61,7 @@ import { Brand } from './landing';
 import Platform from '@/components/platform-logo';
 import ReviewGuide from '@/components/review-guide';
 import OfferChecks from '@/components/offer-checks';
+import OperatorPanel from '@/components/operator-panel';
 import TrendChart from '@/components/trend-chart';
 import SalesActivity from '@/components/sales-activity';
 import { useSampleReview } from '@/components/use-sample-review';
@@ -74,6 +76,7 @@ import {
 } from '@/lib/demo-data';
 
 const sections = [
+  { id: 'operator', label: 'Today’s desk', icon: Workflow },
   { id: 'offers', label: 'Check your offers', icon: ShieldCheck },
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'channels', label: 'Compare ads', icon: ChartNoAxesCombined },
@@ -263,30 +266,34 @@ export default function Workspace() {
             <div>
               <span className="eyebrow">June Paper Co. · Sample business</span>
               <h1 ref={mainHeadingRef} tabIndex={-1}>
-                {section === 'offers'
-                  ? 'Your offers, checked.'
-                  : section === 'overview'
-                    ? 'Your marketing, explained.'
-                    : section === 'channels'
-                      ? 'Compare your advertising.'
-                      : section === 'decisions'
-                        ? 'Your review checklist.'
-                        : section === 'sales'
-                          ? 'Your sales, accounted for.'
-                          : 'Where the numbers come from.'}
+                {section === 'operator'
+                  ? 'Today’s desk.'
+                  : section === 'offers'
+                    ? 'Your offers, checked.'
+                    : section === 'overview'
+                      ? 'Your marketing, explained.'
+                      : section === 'channels'
+                        ? 'Compare your advertising.'
+                        : section === 'decisions'
+                          ? 'Your review checklist.'
+                          : section === 'sales'
+                            ? 'Your sales, accounted for.'
+                            : 'Where the numbers come from.'}
               </h1>
               <p>
-                {section === 'offers'
-                  ? 'Make sure the promise in your marketing reaches the customer’s cart.'
-                  : section === 'overview'
-                    ? 'See what changed, why it matters, and what to check next.'
-                    : section === 'channels'
-                      ? 'Compare what you spent with the new customers linked to each ad platform.'
-                      : section === 'decisions'
-                        ? 'A short checklist to help you decide what to do about Meta.'
-                        : section === 'sales'
-                          ? 'Open an order to see its source, discounts, and refunds.'
-                          : 'See what is included in this sample and which connections are still being built.'}
+                {section === 'operator'
+                  ? 'A labeled sample of who to email, stop, or leave alone. Open the live desk to work it.'
+                  : section === 'offers'
+                    ? 'Make sure the promise in your marketing reaches the customer’s cart. This sample path is still fictional.'
+                    : section === 'overview'
+                      ? 'See what changed, why it matters, and what to check next.'
+                      : section === 'channels'
+                        ? 'Compare what you spent with the new customers linked to each ad platform.'
+                        : section === 'decisions'
+                          ? 'A short checklist to help you decide what to do about Meta.'
+                          : section === 'sales'
+                            ? 'Open an order to see its source, discounts, and refunds.'
+                            : 'See what is included in this sample and which connections are still being built.'}
               </p>
             </div>
             {(section === 'overview' ||
@@ -312,6 +319,9 @@ export default function Workspace() {
                 </SelectContent>
               </Select>
             )}
+          </div>
+          <div hidden={section !== 'operator'}>
+            <OperatorPanel />
           </div>
           <div hidden={section !== 'offers'}>
             <OfferChecks />

@@ -8,6 +8,13 @@
       "when": 1788718532686,
       "tag": "0000_rare_wither",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789858650168,
+      "tag": "0002_flippant_giant_man",
+      "breakpoints": true
     }
   ]
 }
