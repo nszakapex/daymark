@@ -18,7 +18,7 @@
     "test": "node --test tests/data.test.mjs tests/offer-checks.test.mjs tests/sample-check-api.test.mjs",
     "test:api": "node tests/campaign-api-smoke.mjs",
     "test:profile": "node tests/api-smoke.mjs",
-    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm build:demo",
     "build:demo": "vite build --config portfolio-demo/vite.config.ts"
   },
   "dependencies": {

@@ -7,3 +7,5 @@ Run `pnpm build:demo` to build the static UI. Vercel serves only `/`, `/demo`, `
 The only UI difference is `Workspace`'s optional `publicPreview` property, which replaces early-access account links with sample information. Existing Sites routes use the unchanged default. Do not add production credentials to this project. Do not mistake a successful sample check for a real store check or a connected account.
 
 Publish this branch only to the dedicated Daymark public-demo Vercel project. A GitHub push does not modify the original Sites release. Keep that release's access controls unchanged.
+
+`pnpm check` validates both build targets and the sample API tests. After `vercel build`, run `DAYMARK_TEST_COMPILED_API=1 node --test tests/sample-check-api.test.mjs` to validate the actual emitted ESM function. The existing campaign API smoke script can be pointed at the public preview with `TEST_BASE_URL`.
