@@ -2,19 +2,22 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 // Opt in after a Vercel build to exercise the emitted JavaScript import chain.
 // The default test has no dependency on generated deployment artifacts.
-const entrypoint = process.env.DAYMARK_TEST_COMPILED_API === '1'
-  ? '../.vercel/output/functions/api/sample-check.func/api/sample-check.js'
-  : '../api/sample-check.ts';
+const entrypoint =
+  process.env.DAYMARK_TEST_COMPILED_API === '1'
+    ? '../.vercel/output/functions/api/public-sample-check.func/api/public-sample-check.js'
+    : '../api/public-sample-check.ts';
 const { POST } = await import(new URL(entrypoint, import.meta.url).href);
 
 // Import the public deployment entrypoint directly so its ESM import chain is
 // exercised without Vite aliases, a running server, credentials, or a database.
 function post(body) {
-  return POST(new Request('https://daymark.example/api/sample-check', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: typeof body === 'string' ? body : JSON.stringify(body),
-  }));
+  return POST(
+    new Request('https://daymark.example/api/sample-check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: typeof body === 'string' ? body : JSON.stringify(body),
+    }),
+  );
 }
 
 for (const [offerId, setup, marketConfirmed, expectedStatus] of [
@@ -44,7 +47,10 @@ for (const { name, body } of [
   { name: 'null body', body: null },
   { name: 'unknown offer', body: { offerId: 'unknown', setup: 'current' } },
   { name: 'unknown setup', body: { offerId: 'planner', setup: 'unknown' } },
-  { name: 'nonboolean market', body: { offerId: 'shipping', setup: 'current', marketConfirmed: 'yes' } },
+  {
+    name: 'nonboolean market',
+    body: { offerId: 'shipping', setup: 'current', marketConfirmed: 'yes' },
+  },
 ]) {
   test(`public API rejects ${name} without a cacheable result`, async () => {
     const response = await post(body);

@@ -77,3 +77,38 @@
     padding: 16px;
   }
 }
+
+@media (max-width: 380px) {
+  .offer-workspace,
+  .offer-cards,
+  .offer-steps,
+  .cart-proof {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .offer-workspace > *,
+  .offer-controls > *,
+  .offer-history-row > div,
+  .offer-steps li > div,
+  .cart-proof > div,
+  .offer-next > div {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .offer-controls [data-slot='select-trigger'] {
+    height: auto;
+    white-space: normal;
+  }
+  .offer-controls [data-slot='select-value'] {
+    min-width: 0;
+    white-space: normal;
+    -webkit-line-clamp: unset;
+  }
+  .cart-proof dl > div,
+  .sample-cart dl > div {
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+  .offer-history [data-slot='button'] {
+    max-width: 100%;
+  }
+}
