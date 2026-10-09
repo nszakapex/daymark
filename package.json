@@ -15,10 +15,11 @@
     "db:generate": "drizzle-kit generate",
     "db:local": "wrangler d1 migrations apply DB --local --config wrangler.local.jsonc --persist-to .wrangler/state",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/data.test.mjs tests/offer-checks.test.mjs",
+    "test": "node --test tests/data.test.mjs tests/offer-checks.test.mjs tests/sample-check-api.test.mjs",
     "test:api": "node tests/campaign-api-smoke.mjs",
     "test:profile": "node tests/api-smoke.mjs",
-    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm build:demo",
+    "build:demo": "vite build --config portfolio-demo/vite.config.ts"
   },
   "dependencies": {
     "react": "19.2.6",

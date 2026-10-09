@@ -109,7 +109,11 @@ function WorkspaceMenuButton(
   );
 }
 
-export default function Workspace() {
+export default function Workspace({
+  publicPreview = false,
+}: {
+  publicPreview?: boolean;
+}) {
   const mainHeadingRef = useRef<HTMLHeadingElement>(null);
   const sheetHeadingRef = useRef<HTMLHeadingElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -231,11 +235,20 @@ export default function Workspace() {
           <button onClick={() => setPanel('help')}>
             <CircleHelp size={17} /> How Daymark works
           </button>
-          <Link href="/login" className="profile-link">
+          <Link
+            href={publicPreview ? '/privacy' : '/login'}
+            className="profile-link"
+          >
             <span className="profile-avatar">D</span>
             <span>
-              <strong>Early access</strong>
-              <small>Save early-access details</small>
+              <strong>
+                {publicPreview ? 'Public sample' : 'Early access'}
+              </strong>
+              <small>
+                {publicPreview
+                  ? 'Fictional data only'
+                  : 'Save early-access details'}
+              </small>
             </span>
             <ArrowUpRight size={16} />
           </Link>
@@ -1148,17 +1161,22 @@ export default function Workspace() {
                 <h3>When connections become available</h3>
                 <p>
                   Connecting an account will require your permission. For now,
-                  the example uses sample numbers. Selecting a tool on your
-                  early-access profile tells us what you use; it does not
-                  connect the account.
+                  the example uses sample numbers.
+                  {!publicPreview &&
+                    ' Selecting a tool on your early-access profile tells us what you use; it does not connect the account.'}
                 </p>
                 <h3>What you can do today</h3>
                 <p>
-                  Save your business details and which tools you use. Email
-                  contact about early access is optional.
+                  {publicPreview
+                    ? 'Explore the fictional reports, inspect source evidence, and run a sample offer check. No sign-in or live account is required.'
+                    : 'Save your business details and which tools you use. Email contact about early access is optional.'}
                 </p>
-                <Link className="button-primary" href="/login">
-                  Get early access <ArrowUpRight size={16} />
+                <Link
+                  className="button-primary"
+                  href={publicPreview ? '/privacy' : '/login'}
+                >
+                  {publicPreview ? 'About this sample' : 'Get early access'}{' '}
+                  <ArrowUpRight size={16} />
                 </Link>
               </>
             ) : (
