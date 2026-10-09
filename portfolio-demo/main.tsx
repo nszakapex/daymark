@@ -26,8 +26,9 @@ function SamplePrivacy() {
         Offer checks compare sample terms against a fictional basket. They do
         not visit a real store. The latest twenty check inputs and timestamps
         stay in this tab’s session storage; the latest six appear in the
-        interface. The review checklist stays in this browser’s local storage.
-        Both have reset controls and fall back to temporary memory when browser
+        interface. The review checklist stays in this browser’s local storage. A
+        sidebar preference may also be saved in a browser cookie. Both histories
+        have reset controls and fall back to temporary memory when browser
         storage is unavailable.
       </p>
       <h2>Hosting</h2>

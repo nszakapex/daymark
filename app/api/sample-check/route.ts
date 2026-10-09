@@ -1,4 +1,4 @@
-import { checkOffer, getOffer, type Setup } from '@/lib/offer-checks';
+import { checkOffer, getOffer, type Setup } from '../../../lib/offer-checks.ts';
 export async function POST(request: Request) {
   const headers = { 'Cache-Control': 'no-store' };
   try {
